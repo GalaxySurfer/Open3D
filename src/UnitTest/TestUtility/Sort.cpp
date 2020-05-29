@@ -34,7 +34,7 @@ namespace open3d {
 namespace unit_test {
 
 // Test the Sort function itself.
-TEST(Sort, TestSort) {
+TEST(Sort, Sort) {
     std::vector<Eigen::Vector3d> points{
             {0, 0, 1}, {1, 1, 0}, {0, 0, 2}, {0, 0, 0}, {0, 1, 0}, {0, 1, 0},
             {2, 1, 2}, {0, 1, 1}, {1, 1, 1}, {0, 1, 2}, {2, 0, 2}, {2, 1, 0},
@@ -45,7 +45,20 @@ TEST(Sort, TestSort) {
             {0, 1, 2}, {1, 0, 0}, {1, 0, 1}, {1, 0, 2}, {1, 1, 0}, {1, 1, 0},
             {1, 1, 1}, {2, 0, 0}, {2, 0, 2}, {2, 1, 0}, {2, 1, 1}, {2, 1, 2},
     };
+    ExpectEQ(Sort(points), sorted_points);
+}
 
+TEST(Sort, SortWithIndices) {
+    std::vector<Eigen::Vector3d> points{
+            {0, 0, 1}, {1, 1, 0}, {0, 0, 2}, {0, 0, 0}, {0, 1, 0}, {0, 1, 0},
+            {2, 1, 2}, {0, 1, 1}, {1, 1, 1}, {0, 1, 2}, {2, 0, 2}, {2, 1, 0},
+            {2, 1, 1}, {2, 0, 0}, {1, 0, 0}, {1, 0, 1}, {1, 0, 2}, {1, 1, 0},
+    };
+    std::vector<Eigen::Vector3d> sorted_points{
+            {0, 0, 0}, {0, 0, 1}, {0, 0, 2}, {0, 1, 0}, {0, 1, 0}, {0, 1, 1},
+            {0, 1, 2}, {1, 0, 0}, {1, 0, 1}, {1, 0, 2}, {1, 1, 0}, {1, 1, 0},
+            {1, 1, 1}, {2, 0, 0}, {2, 0, 2}, {2, 1, 0}, {2, 1, 1}, {2, 1, 2},
+    };
     ExpectEQ(Sort(points), sorted_points);
 }
 

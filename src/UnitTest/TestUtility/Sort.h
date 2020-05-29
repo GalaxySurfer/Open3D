@@ -29,28 +29,47 @@
 #include <gtest/gtest.h>
 #include <Eigen/Core>
 #include <algorithm>
+#include <numeric>
 #include <vector>
 
 namespace open3d {
 namespace unit_test {
 
 template <class T, int M, int N, int A>
+std::vector<Eigen::Matrix<T, M, N, A>> SortApplyIndices(
+        const std::vector<Eigen::Matrix<T, M, N, A>>& vals,
+        const std::vector<size_t>& indices) {
+    std::vector<Eigen::Matrix<T, M, N, A>> vals_sorted;
+    for (const size_t& i : indices) {
+        vals_sorted.push_back(vals[i]);
+    }
+    return vals_sorted;
+};
+
+template <class T, int M, int N, int A>
+std::pair<std::vector<Eigen::Matrix<T, M, N, A>>, std::vector<size_t>>
+SortWithIndices(const std::vector<Eigen::Matrix<T, M, N, A>>& vals) {
+    // https://stackoverflow.com/a/12399290/1255535
+    std::vector<size_t> indices(vals.size());
+    std::iota(indices.begin(), indices.end(), 0);
+    std::stable_sort(indices.begin(), indices.end(),
+                     [&vals](size_t lhs, size_t rhs) -> bool {
+                         for (int i = 0; i < vals[lhs].size(); i++) {
+                             if (vals[lhs](i) == vals[rhs](i)) {
+                                 continue;
+                             } else {
+                                 return vals[lhs](i) < vals[rhs](i);
+                             }
+                         }
+                         return false;
+                     });
+    return std::make_pair(SortApplyIndices(vals, indices), indices);
+};
+
+template <class T, int M, int N, int A>
 std::vector<Eigen::Matrix<T, M, N, A>> Sort(
         const std::vector<Eigen::Matrix<T, M, N, A>>& vals) {
-    std::vector<Eigen::Matrix<T, M, N, A>> ret_vals = vals;
-    std::sort(ret_vals.begin(), ret_vals.end(),
-              [](const Eigen::Matrix<T, M, N, A>& lhs,
-                 const Eigen::Matrix<T, M, N, A>& rhs) -> bool {
-                  for (int i = 0; i < lhs.size(); i++) {
-                      if (lhs(i) == rhs(i)) {
-                          continue;
-                      } else {
-                          return lhs(i) < rhs(i);
-                      }
-                  }
-                  return false;
-              });
-    return ret_vals;
+    return SortWithIndices(vals).first;
 };
 
 }  // namespace unit_test

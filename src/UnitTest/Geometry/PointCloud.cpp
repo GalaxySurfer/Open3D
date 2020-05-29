@@ -499,18 +499,25 @@ TEST(PointCloud, VoxelDownSample) {
     pc.colors_ = colors;
 
     std::shared_ptr<geometry::PointCloud> pc_down = pc.VoxelDownSample(1.0);
-    ExpectEQ(Sort(pc_down->points_), Sort(std::vector<Eigen::Vector3d>({
-                                             {0.65, 0.65, 0.65},
-                                             {0.55, 1.55, 2.35},
-                                     })));
-    ExpectEQ(Sort(pc_down->colors_), Sort(std::vector<Eigen::Vector3d>({
-                                             {0.0, 0.3, 0.4},
-                                             {0.1, 0.1, 0.2},
-                                     })));
-    ExpectEQ(Sort(pc_down->normals_), Sort(std::vector<Eigen::Vector3d>({
-                                              {0, 3, 4},
-                                              {1, 1, 2},
-                                      })));
+    std::vector<size_t> sort_indices = SortWithIndices(pc_down->points_).second;
+    ExpectEQ(SortApplyIndices(pc_down->points_, sort_indices),
+             SortApplyIndices(std::vector<Eigen::Vector3d>({
+                                      {0.65, 0.65, 0.65},
+                                      {0.55, 1.55, 2.35},
+                              }),
+                              sort_indices));
+    ExpectEQ(SortApplyIndices(pc_down->normals_, sort_indices),
+             SortApplyIndices(std::vector<Eigen::Vector3d>({
+                                      {0, 3, 4},
+                                      {1, 1, 2},
+                              }),
+                              sort_indices));
+    ExpectEQ(SortApplyIndices(pc_down->colors_, sort_indices),
+             SortApplyIndices(std::vector<Eigen::Vector3d>({
+                                      {0.0, 0.3, 0.4},
+                                      {0.1, 0.1, 0.2},
+                              }),
+                              sort_indices));
 }
 
 TEST(PointCloud, DISABLED_UniformDownSample) {

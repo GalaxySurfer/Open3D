@@ -227,7 +227,10 @@ public:
         return point_ / double(num_of_points_);
     }
 
-    Eigen::Vector3d GetAverageNormal() const { return normal_.normalized(); }
+    Eigen::Vector3d GetAverageNormal() const {
+        // Call NormalizeNormals() afterwards if necessary
+        return normal_ / double(num_of_points_);
+    }
 
     Eigen::Vector3d GetAverageColor() const {
         return color_ / double(num_of_points_);

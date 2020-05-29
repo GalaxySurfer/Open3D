@@ -465,7 +465,7 @@ TEST(PointCloud, VoxelDownSample) {
     // voxel_{i,j,k}: 0 <= i, j, k <= 2; 27 possible voxels
     std::vector<Eigen::Vector3d> points{
             // voxel_{0, 0, 0}
-            {0.5, 0.6, 0.7},
+            {0.5, 0.7, 0.6},
             {0.6, 0.5, 0.7},
             {0.7, 0.6, 0.5},
             {0.8, 0.8, 0.8},
@@ -499,18 +499,18 @@ TEST(PointCloud, VoxelDownSample) {
     pc.colors_ = colors;
 
     std::shared_ptr<geometry::PointCloud> pc_down = pc.VoxelDownSample(1.0);
-    ExpectEQ(pc_down->points_, std::vector<Eigen::Vector3d>({
-                                       {0.65, 0.65, 0.65},
-                                       {0.55, 1.55, 2.35},
-                               }));
-    ExpectEQ(pc_down->colors_, std::vector<Eigen::Vector3d>({
-                                       {0, 3, 4},
-                                       {1, 1, 2},
-                               }));
-    ExpectEQ(pc_down->normals_, std::vector<Eigen::Vector3d>({
-                                        {0.0, 0.3, 0.4},
-                                        {0.1, 0.1, 0.2},
-                                }));
+    ExpectEQ(Sort(pc_down->points_), Sort(std::vector<Eigen::Vector3d>({
+                                             {0.65, 0.65, 0.65},
+                                             {0.55, 1.55, 2.35},
+                                     })));
+    ExpectEQ(Sort(pc_down->colors_), Sort(std::vector<Eigen::Vector3d>({
+                                             {0.0, 0.3, 0.4},
+                                             {0.1, 0.1, 0.2},
+                                     })));
+    ExpectEQ(Sort(pc_down->normals_), Sort(std::vector<Eigen::Vector3d>({
+                                              {0, 3, 4},
+                                              {1, 1, 2},
+                                      })));
 }
 
 TEST(PointCloud, DISABLED_UniformDownSample) {

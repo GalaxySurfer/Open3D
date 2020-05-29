@@ -207,6 +207,73 @@ TEST(PointCloud, Rotate) {
     ExpectEQ(pc.GetCenter(), center);  // Rotate relative to the original center
 }
 
+TEST(PointCloud, OperatorPlusEqual) {
+    std::vector<Eigen::Vector3d> points_a = {{0, 1, 2}, {3, 4, 5}};
+    std::vector<Eigen::Vector3d> normals_a = {{0, 1, 2}, {3, 4, 5}};
+    std::vector<Eigen::Vector3d> colors_a = {{0, 1, 2}, {3, 4, 5}};
+
+    std::vector<Eigen::Vector3d> points_b = {{6, 7, 8}, {9, 10, 11}};
+    std::vector<Eigen::Vector3d> normals_b = {{6, 7, 8}, {9, 10, 11}};
+    std::vector<Eigen::Vector3d> colors_b = {{6, 7, 8}, {9, 10, 11}};
+
+    std::vector<Eigen::Vector3d> empty(0);
+
+    std::vector<Eigen::Vector3d> points_a_b = {
+            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11}};
+    std::vector<Eigen::Vector3d> normals_a_b = {
+            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11}};
+    std::vector<Eigen::Vector3d> colors_a_b = {
+            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11}};
+
+    geometry::PointCloud pc_a_full;
+    geometry::PointCloud pc_b_full;
+    pc_a_full.points_ = points_a;
+    pc_a_full.normals_ = normals_a;
+    pc_a_full.colors_ = colors_a;
+    pc_b_full.points_ = points_b;
+    pc_b_full.normals_ = normals_b;
+    pc_b_full.colors_ = colors_b;
+
+    geometry::PointCloud pc_a = pc_a_full;
+    geometry::PointCloud pc_b = pc_b_full;
+    pc_a += pc_b;
+    ExpectEQ(pc_a.points_, points_a_b);
+    ExpectEQ(pc_a.normals_, normals_a_b);
+    ExpectEQ(pc_a.colors_, colors_a_b);
+
+    pc_a = pc_a_full;
+    pc_b = pc_b_full;
+    pc_a.normals_.clear();
+    pc_a += pc_b;
+    ExpectEQ(pc_a.points_, points_a_b);
+    ExpectEQ(pc_a.normals_, empty);
+    ExpectEQ(pc_a.colors_, colors_a_b);
+
+    pc_a = pc_a_full;
+    pc_b = pc_b_full;
+    pc_b.normals_.clear();
+    pc_a += pc_b;
+    ExpectEQ(pc_a.points_, points_a_b);
+    ExpectEQ(pc_a.normals_, empty);
+    ExpectEQ(pc_a.colors_, colors_a_b);
+
+    pc_a = pc_a_full;
+    pc_b = pc_b_full;
+    pc_a.colors_.clear();
+    pc_a += pc_b;
+    ExpectEQ(pc_a.points_, points_a_b);
+    ExpectEQ(pc_a.normals_, normals_a_b);
+    ExpectEQ(pc_a.colors_, empty);
+
+    pc_a = pc_a_full;
+    pc_b = pc_b_full;
+    pc_b.colors_.clear();
+    pc_a += pc_b;
+    ExpectEQ(pc_a.points_, points_a_b);
+    ExpectEQ(pc_a.normals_, normals_a_b);
+    ExpectEQ(pc_a.colors_, empty);
+}
+
 TEST(PointCloud, DISABLED_HasPoints) {
     int size = 100;
 

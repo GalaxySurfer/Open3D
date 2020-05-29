@@ -34,7 +34,7 @@ namespace unit_test {
 
 std::string LineInfo(const char* file, int line) {
     std::stringstream ss;
-    ss << "[" << file << ":" << line << "] ";
+    ss << file << ":" << line << ":\n";
     return ss.str();
 }
 

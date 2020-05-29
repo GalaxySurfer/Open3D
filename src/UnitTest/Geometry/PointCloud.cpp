@@ -400,53 +400,61 @@ TEST(PointCloud, PaintUniformColor) {
     EXPECT_EQ(pc.colors_, std::vector<Eigen::Vector3d>({color, color}));
 }
 
-TEST(PointCloud, DISABLED_SelectByIndex) {
-    std::vector<Eigen::Vector3d> ref = {{796.078431, 909.803922, 196.078431},
-                                        {768.627451, 525.490196, 768.627451},
-                                        {400.000000, 890.196078, 282.352941},
-                                        {349.019608, 803.921569, 917.647059},
-                                        {19.607843, 454.901961, 62.745098},
-                                        {666.666667, 529.411765, 39.215686},
-                                        {164.705882, 439.215686, 878.431373},
-                                        {909.803922, 482.352941, 215.686275},
-                                        {615.686275, 278.431373, 784.313725},
-                                        {415.686275, 168.627451, 905.882353},
-                                        {949.019608, 50.980392, 517.647059},
-                                        {639.215686, 756.862745, 90.196078},
-                                        {203.921569, 886.274510, 121.568627},
-                                        {356.862745, 549.019608, 576.470588},
-                                        {529.411765, 756.862745, 301.960784},
-                                        {992.156863, 576.470588, 874.509804},
-                                        {227.450980, 698.039216, 313.725490},
-                                        {470.588235, 592.156863, 941.176471},
-                                        {431.372549, 0.000000, 341.176471},
-                                        {596.078431, 831.372549, 231.372549},
-                                        {674.509804, 482.352941, 478.431373},
-                                        {694.117647, 670.588235, 635.294118},
-                                        {109.803922, 360.784314, 576.470588},
-                                        {592.156863, 662.745098, 286.274510},
-                                        {823.529412, 329.411765, 184.313725}};
+TEST(PointCloud, SelectByIndex) {
+    std::vector<Eigen::Vector3d> points({
+            {0, 0, 0},
+            {1, 1, 1},
+            {2, 2, 2},
+            {3, 3, 3},
+    });
+    std::vector<Eigen::Vector3d> colors({
+            {0.0, 0.0, 0.0},
+            {0.1, 0.1, 0.1},
+            {0.2, 0.2, 0.2},
+            {0.3, 0.3, 0.3},
+    });
+    std::vector<Eigen::Vector3d> normals({
+            {10, 10, 10},
+            {11, 11, 11},
+            {12, 12, 12},
+            {13, 13, 13},
+    });
 
-    size_t size = 100;
+    std::vector<size_t> indices{0, 1, 3};
+
     geometry::PointCloud pc;
+    pc.points_ = points;
+    pc.colors_ = colors;
+    pc.normals_ = normals;
 
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
+    std::shared_ptr<geometry::PointCloud> pc0 = pc.SelectByIndex(indices);
+    ExpectEQ(pc0->points_, std::vector<Eigen::Vector3d>({
+                                   {0, 0, 0},
+                                   {1, 1, 1},
+                                   {3, 3, 3},
+                           }));
+    ExpectEQ(pc0->colors_, std::vector<Eigen::Vector3d>({
+                                   {0.0, 0.0, 0.0},
+                                   {0.1, 0.1, 0.1},
+                                   {0.3, 0.3, 0.3},
+                           }));
+    ExpectEQ(pc0->normals_, std::vector<Eigen::Vector3d>({
+                                    {10, 10, 10},
+                                    {11, 11, 11},
+                                    {13, 13, 13},
+                            }));
 
-    pc.points_.resize(size);
-    Rand(pc.points_, vmin, vmax, 0);
-
-    std::vector<size_t> indices(size / 4);
-    Rand(indices, 0, size, 0);
-
-    // remove duplicates
-    std::vector<size_t>::iterator it;
-    it = unique(indices.begin(), indices.end());
-    indices.resize(distance(indices.begin(), it));
-
-    auto output_pc = pc.SelectByIndex(indices);
-
-    ExpectEQ(ref, output_pc->points_);
+    std::shared_ptr<geometry::PointCloud> pc1 =
+            pc.SelectByIndex(indices, /*invert=*/true);
+    ExpectEQ(pc1->points_, std::vector<Eigen::Vector3d>({
+                                   {2, 2, 2},
+                           }));
+    ExpectEQ(pc1->colors_, std::vector<Eigen::Vector3d>({
+                                   {0.2, 0.2, 0.2},
+                           }));
+    ExpectEQ(pc1->normals_, std::vector<Eigen::Vector3d>({
+                                    {12, 12, 12},
+                            }));
 }
 
 TEST(PointCloud, DISABLED_VoxelDownSample) {

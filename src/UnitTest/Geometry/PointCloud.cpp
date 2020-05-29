@@ -169,6 +169,33 @@ TEST(PointCloud, Translate) {
     ExpectEQ(pc.GetCenter(), translation);
 }
 
+TEST(PointCloud, Scale) {
+    std::vector<Eigen::Vector3d> points = {
+            {0, 1, 2},
+            {6, 7, 8},
+    };
+    double scale = 10;
+    geometry::PointCloud pc;
+
+    Eigen::Vector3d zero(0, 0, 0);
+    std::vector<Eigen::Vector3d> points_scaled_center_zero = {
+            {0, 10, 20},
+            {60, 70, 80},
+    };
+    pc.points_ = points;
+    pc.Scale(scale, zero);
+    ExpectEQ(pc.points_, points_scaled_center_zero);
+
+    Eigen::Vector3d one(1, 1, 1);
+    std::vector<Eigen::Vector3d> points_scaled_center_one = {
+            {-9, 1, 11},
+            {51, 61, 71},
+    };
+    pc.points_ = points;
+    pc.Scale(scale, one);
+    ExpectEQ(pc.points_, points_scaled_center_one);
+}
+
 TEST(PointCloud, DISABLED_HasPoints) {
     int size = 100;
 

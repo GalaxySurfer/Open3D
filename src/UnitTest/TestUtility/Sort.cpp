@@ -28,6 +28,7 @@
 
 #include <algorithm>
 
+#include "Open3D/Utility/Console.h"
 #include "TestUtility/UnitTest.h"
 
 namespace open3d {
@@ -59,7 +60,10 @@ TEST(Sort, SortWithIndices) {
             {0, 1, 2}, {1, 0, 0}, {1, 0, 1}, {1, 0, 2}, {1, 1, 0}, {1, 1, 0},
             {1, 1, 1}, {2, 0, 0}, {2, 0, 2}, {2, 1, 0}, {2, 1, 1}, {2, 1, 2},
     };
-    ExpectEQ(Sort(points), sorted_points);
+    std::vector<size_t> indices{3,  0, 2,  4, 5,  7,  9,  14, 15,
+                                16, 1, 17, 8, 13, 10, 11, 12, 6};
+    ExpectEQ(SortWithIndices(points).first, sorted_points);
+    EXPECT_EQ(SortWithIndices(points).second, indices);
 }
 
 }  // namespace unit_test

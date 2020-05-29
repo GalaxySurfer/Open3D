@@ -73,13 +73,15 @@ std::vector<Eigen::Matrix<T, M, N, A>> Sort(
     return SortWithIndices(vals).first;
 };
 
-/// Returns indices that can transform array A to B, i.e. B[i] ~= A[indices[i]].
+/// \brief Returns indices that can transform array A to B, s.t. B[i] ~=
+/// A[indices[i]].
+///
 /// This assumes the sorted \p a_vals and the sorted \p b_vals are close or
 /// equal.
-//
-// \param a Values of array A.
-// \param b Values of array B.
-// \return indices such that B[i] ~= A[indices[i]]
+///
+/// \param a Values of array A.
+/// \param b Values of array B.
+/// \return indices such that B[i] ~= A[indices[i]]
 template <class T, int M, int N, int A>
 std::vector<size_t> GetIndicesAToB(
         const std::vector<Eigen::Matrix<T, M, N, A>>& a,

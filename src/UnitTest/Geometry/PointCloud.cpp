@@ -86,6 +86,9 @@ TEST(PointCloud, GetMinBound) {
             {1, 10, 20}, {30, 2, 40}, {50, 60, 3}};
     geometry::PointCloud pc(points);
     ExpectEQ(pc.GetMinBound(), Eigen::Vector3d(1, 2, 3));
+
+    geometry::PointCloud pc_empty;
+    ExpectEQ(pc_empty.GetMinBound(), Eigen::Vector3d(0, 0, 0));
 }
 
 TEST(PointCloud, GetMaxBound) {
@@ -93,6 +96,19 @@ TEST(PointCloud, GetMaxBound) {
             {1, 10, 20}, {30, 2, 40}, {50, 60, 3}};
     geometry::PointCloud pc(points);
     ExpectEQ(pc.GetMaxBound(), Eigen::Vector3d(50, 60, 40));
+
+    geometry::PointCloud pc_empty;
+    ExpectEQ(pc_empty.GetMaxBound(), Eigen::Vector3d(0, 0, 0));
+}
+
+TEST(PointCloud, GetCenter) {
+    std::vector<Eigen::Vector3d> points = {
+            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11}};
+    geometry::PointCloud pc(points);
+    ExpectEQ(pc.GetCenter(), Eigen::Vector3d(4.5, 5.5, 6.5));
+
+    geometry::PointCloud pc_empty;
+    ExpectEQ(pc_empty.GetCenter(), Eigen::Vector3d(0, 0, 0));
 }
 
 TEST(PointCloud, Transform) {

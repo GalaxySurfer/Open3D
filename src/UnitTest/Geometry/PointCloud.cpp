@@ -111,6 +111,10 @@ TEST(PointCloud, GetCenter) {
     ExpectEQ(pc_empty.GetCenter(), Eigen::Vector3d(0, 0, 0));
 }
 
+TEST(PointCloud, DISABLED_GetAxisAlignedBoundingBox) {}
+
+TEST(PointCloud, DISABLED_GetOrientedBoundingBox) {}
+
 TEST(PointCloud, Transform) {
     std::vector<Eigen::Vector3d> points = {
             {0, 0, 0},

@@ -1432,7 +1432,7 @@ TEST(TriangleMesh, DeformAsRigidAsPossible) {
 
     auto mesh_deform =
             mesh_in.DeformAsRigidAsPossible(constraint_ids, constraint_pos, 50);
-    ExpectMeshEQ(*mesh_deform, mesh_gt);
+    ExpectMeshEQ(*mesh_deform, mesh_gt, 1e-5);
 }
 
 TEST(TriangleMesh, SelectByIndex) {

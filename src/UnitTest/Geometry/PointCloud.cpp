@@ -287,71 +287,98 @@ TEST(PointCloud, OperatorPlusEqual) {
     ExpectEQ(pc_a.colors_, pc_a_full.colors_);
 }
 
-TEST(PointCloud, DISABLED_HasPoints) {
-    int size = 100;
+TEST(PointCloud, OperatorPlus) {
+    std::vector<Eigen::Vector3d> points_a = {{0, 1, 2}};
+    std::vector<Eigen::Vector3d> normals_a = {{0, 1, 2}};
+    std::vector<Eigen::Vector3d> colors_a = {{0, 1, 2}};
+    std::vector<Eigen::Vector3d> points_b = {{3, 4, 5}};
+    std::vector<Eigen::Vector3d> normals_b = {{3, 4, 5}};
+    std::vector<Eigen::Vector3d> colors_b = {{3, 4, 5}};
 
+    geometry::PointCloud pc_a;
+    geometry::PointCloud pc_b;
+    pc_a.points_ = points_a;
+    pc_a.normals_ = normals_a;
+    pc_a.colors_ = colors_a;
+    pc_b.points_ = points_b;
+    pc_b.normals_ = normals_b;
+    pc_b.colors_ = colors_b;
+
+    geometry::PointCloud pc_c = pc_a + pc_b;
+    ExpectEQ(pc_c.points_,
+             std::vector<Eigen::Vector3d>({{0, 1, 2}, {3, 4, 5}}));
+    ExpectEQ(pc_c.normals_,
+             std::vector<Eigen::Vector3d>({{0, 1, 2}, {3, 4, 5}}));
+    ExpectEQ(pc_c.colors_,
+             std::vector<Eigen::Vector3d>({{0, 1, 2}, {3, 4, 5}}));
+}
+
+TEST(PointCloud, HasPoints) {
     geometry::PointCloud pc;
-
     EXPECT_FALSE(pc.HasPoints());
-
-    pc.points_.resize(size);
-
+    pc.points_.resize(5);
     EXPECT_TRUE(pc.HasPoints());
 }
 
-TEST(PointCloud, DISABLED_HasNormals) {
-    int size = 100;
-
+TEST(PointCloud, HasNormals) {
     geometry::PointCloud pc;
-
     EXPECT_FALSE(pc.HasNormals());
 
-    pc.points_.resize(size);
-    pc.normals_.resize(size);
+    // False if #points == 0
+    pc.points_.resize(0);
+    pc.normals_.resize(5);
+    EXPECT_FALSE(pc.HasNormals());
 
+    // False if not consistant
+    pc.points_.resize(4);
+    pc.normals_.resize(5);
+    EXPECT_FALSE(pc.HasNormals());
+
+    // True if non-zero and consistant
+    pc.points_.resize(5);
+    pc.normals_.resize(5);
     EXPECT_TRUE(pc.HasNormals());
 }
 
-TEST(PointCloud, DISABLED_HasColors) {
-    int size = 100;
-
+TEST(PointCloud, HasColors) {
     geometry::PointCloud pc;
+    EXPECT_FALSE(pc.HasNormals());
 
+    // False if #points == 0
+    pc.points_.resize(0);
+    pc.colors_.resize(5);
     EXPECT_FALSE(pc.HasColors());
 
-    pc.points_.resize(size);
-    pc.colors_.resize(size);
+    // False if not consistant
+    pc.points_.resize(4);
+    pc.colors_.resize(5);
+    EXPECT_FALSE(pc.HasColors());
 
+    // True if non-zero and consistant
+    pc.points_.resize(5);
+    pc.colors_.resize(5);
     EXPECT_TRUE(pc.HasColors());
 }
 
-TEST(PointCloud, DISABLED_NormalizeNormals) {
-    std::vector<Eigen::Vector3d> ref = {
-            {0.692861, 0.323767, 0.644296}, {0.650010, 0.742869, 0.160101},
-            {0.379563, 0.870761, 0.312581}, {0.575046, 0.493479, 0.652534},
-            {0.320665, 0.448241, 0.834418}, {0.691127, 0.480526, 0.539850},
-            {0.227557, 0.973437, 0.025284}, {0.281666, 0.156994, 0.946582},
-            {0.341869, 0.894118, 0.289273}, {0.103335, 0.972118, 0.210498},
-            {0.441745, 0.723783, 0.530094}, {0.336903, 0.727710, 0.597441},
-            {0.434917, 0.862876, 0.257471}, {0.636619, 0.435239, 0.636619},
-            {0.393717, 0.876213, 0.277918}, {0.275051, 0.633543, 0.723167},
-            {0.061340, 0.873191, 0.483503}, {0.118504, 0.276510, 0.953677},
-            {0.930383, 0.360677, 0.065578}, {0.042660, 0.989719, 0.136513}};
-
-    int size = 20;
-
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
-
+TEST(PointCloud, NormalizeNormals) {
     geometry::PointCloud pc;
-
-    pc.normals_.resize(size);
-
-    Rand(pc.normals_, vmin, vmax, 0);
-
+    pc.normals_ = std::vector<Eigen::Vector3d>({
+            {2, 2, 2},
+            {1, 1, 1},
+            {0, 0, 1},
+            {0, 1, 0},
+            {1, 0, 0},
+            {0, 0, 0},  // Normalize to (0, 0, 0)
+    });
     pc.NormalizeNormals();
-
-    ExpectEQ(ref, pc.normals_);
+    ExpectEQ(pc.normals_, std::vector<Eigen::Vector3d>({
+                                  {0.57735, 0.57735, 0.57735},
+                                  {0.57735, 0.57735, 0.57735},
+                                  {0, 0, 1},
+                                  {0, 1, 0},
+                                  {1, 0, 0},
+                                  {0, 0, 0},
+                          }));
 }
 
 TEST(PointCloud, DISABLED_PaintUniformColor) {

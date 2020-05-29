@@ -41,114 +41,58 @@ TEST(PointCloud, ConstructorDefault) {
 
     EXPECT_EQ(geometry::Geometry::GeometryType::PointCloud,
               pc.GetGeometryType());
-    EXPECT_EQ(3, pc.Dimension());
+    EXPECT_EQ(pc.Dimension(), 3);
 
-    EXPECT_EQ(0, pc.points_.size());
-    EXPECT_EQ(0, pc.normals_.size());
-    EXPECT_EQ(0, pc.colors_.size());
+    EXPECT_EQ(pc.points_.size(), 0);
+    EXPECT_EQ(pc.normals_.size(), 0);
+    EXPECT_EQ(pc.colors_.size(), 0);
 }
 
 TEST(PointCloud, ConstructorFromPoints) {
-    std::vector<Eigen::Vector3d> points;
-    points.emplace_back(0, 1, 2);
-    points.emplace_back(3, 4, 5);
-
+    std::vector<Eigen::Vector3d> points = {{0, 1, 2}, {3, 4, 5}};
     geometry::PointCloud pc(points);
 
-    EXPECT_EQ(2, pc.points_.size());
-    EXPECT_EQ(0, pc.normals_.size());
-    EXPECT_EQ(0, pc.colors_.size());
+    EXPECT_EQ(pc.points_.size(), 2);
+    EXPECT_EQ(pc.normals_.size(), 0);
+    EXPECT_EQ(pc.colors_.size(), 0);
 
     ExpectEQ(pc.points_, points);
 }
 
-TEST(PointCloud, Clear) {
-    int size = 100;
-
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
+TEST(PointCloud, Clear_IsEmpty) {
+    std::vector<Eigen::Vector3d> points = {{0, 1, 2}, {3, 4, 5}};
+    std::vector<Eigen::Vector3d> normals = {{0, 1, 2}, {3, 4, 5}};
+    std::vector<Eigen::Vector3d> colors = {{0.0, 0.1, 0.2}, {0.3, 0.4, 0.5}};
 
     geometry::PointCloud pc;
-
-    pc.points_.resize(size);
-    pc.normals_.resize(size);
-    pc.colors_.resize(size);
-
-    Rand(pc.points_, vmin, vmax, 0);
-    Rand(pc.normals_, vmin, vmax, 0);
-    Rand(pc.colors_, vmin, vmax, 0);
-
-    ExpectEQ(Eigen::Vector3d(19.607843, 0.0, 0.0), pc.GetMinBound());
-    ExpectEQ(Eigen::Vector3d(996.078431, 996.078431, 996.078431),
-             pc.GetMaxBound());
+    pc.points_ = points;
+    pc.normals_ = normals;
+    pc.colors_ = colors;
 
     EXPECT_FALSE(pc.IsEmpty());
-    EXPECT_TRUE(pc.HasPoints());
-    EXPECT_TRUE(pc.HasNormals());
-    EXPECT_TRUE(pc.HasColors());
+    EXPECT_EQ(pc.points_.size(), 2);
+    EXPECT_EQ(pc.normals_.size(), 2);
+    EXPECT_EQ(pc.colors_.size(), 2);
 
     pc.Clear();
-
-    // public members
     EXPECT_TRUE(pc.IsEmpty());
-
-    ExpectEQ(Zero3d, pc.GetMinBound());
-    ExpectEQ(Zero3d, pc.GetMaxBound());
-
-    EXPECT_FALSE(pc.HasPoints());
-    EXPECT_FALSE(pc.HasNormals());
-    EXPECT_FALSE(pc.HasColors());
-}
-
-TEST(PointCloud, IsEmpty) {
-    int size = 100;
-
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
-
-    geometry::PointCloud pc;
-
-    EXPECT_TRUE(pc.IsEmpty());
-
-    pc.points_.resize(size);
-
-    Rand(pc.points_, vmin, vmax, 0);
-
-    EXPECT_FALSE(pc.IsEmpty());
+    EXPECT_EQ(pc.points_.size(), 0);
+    EXPECT_EQ(pc.normals_.size(), 0);
+    EXPECT_EQ(pc.colors_.size(), 0);
 }
 
 TEST(PointCloud, GetMinBound) {
-    int size = 100;
-
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
-
-    geometry::PointCloud pc;
-
-    pc.points_.resize(size);
-
-    Rand(pc.points_, vmin, vmax, 0);
-
-    ExpectEQ(Eigen::Vector3d(19.607843, 0.0, 0.0), pc.GetMinBound());
-    ExpectEQ(Eigen::Vector3d(19.607843, 0.0, 0.0), pc.GetMinBound());
+    std::vector<Eigen::Vector3d> points = {
+            {1, 10, 20}, {30, 2, 40}, {50, 60, 3}};
+    geometry::PointCloud pc(points);
+    ExpectEQ(pc.GetMinBound(), Eigen::Vector3d(1, 2, 3));
 }
 
 TEST(PointCloud, GetMaxBound) {
-    int size = 100;
-
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
-
-    geometry::PointCloud pc;
-
-    pc.points_.resize(size);
-
-    Rand(pc.points_, vmin, vmax, 0);
-
-    ExpectEQ(Eigen::Vector3d(996.078431, 996.078431, 996.078431),
-             pc.GetMaxBound());
-    ExpectEQ(Eigen::Vector3d(996.078431, 996.078431, 996.078431),
-             pc.GetMaxBound());
+    std::vector<Eigen::Vector3d> points = {
+            {1, 10, 20}, {30, 2, 40}, {50, 60, 3}};
+    geometry::PointCloud pc(points);
+    ExpectEQ(pc.GetMaxBound(), Eigen::Vector3d(50, 60, 40));
 }
 
 TEST(PointCloud, Transform) {

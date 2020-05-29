@@ -272,6 +272,19 @@ TEST(PointCloud, OperatorPlusEqual) {
     ExpectEQ(pc_a.points_, points_a_b);
     ExpectEQ(pc_a.normals_, normals_a_b);
     ExpectEQ(pc_a.colors_, empty);
+
+    pc_a.Clear();
+    pc_a += pc_b_full;
+    ExpectEQ(pc_a.points_, pc_b_full.points_);
+    ExpectEQ(pc_a.normals_, pc_b_full.normals_);
+    ExpectEQ(pc_a.colors_, pc_b_full.colors_);
+
+    pc_a = pc_a_full;
+    pc_b.Clear();
+    pc_a += pc_b;
+    ExpectEQ(pc_a.points_, pc_a_full.points_);
+    ExpectEQ(pc_a.normals_, pc_a_full.normals_);
+    ExpectEQ(pc_a.colors_, pc_a_full.colors_);
 }
 
 TEST(PointCloud, DISABLED_HasPoints) {

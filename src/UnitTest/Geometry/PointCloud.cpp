@@ -365,6 +365,7 @@ TEST(PointCloud, NormalizeNormals) {
     pc.normals_ = std::vector<Eigen::Vector3d>({
             {2, 2, 2},
             {1, 1, 1},
+            {-1, -1, -1},
             {0, 0, 1},
             {0, 1, 0},
             {1, 0, 0},
@@ -374,6 +375,7 @@ TEST(PointCloud, NormalizeNormals) {
     ExpectEQ(pc.normals_, std::vector<Eigen::Vector3d>({
                                   {0.57735, 0.57735, 0.57735},
                                   {0.57735, 0.57735, 0.57735},
+                                  {-0.57735, -0.57735, -0.57735},
                                   {0, 0, 1},
                                   {0, 1, 0},
                                   {1, 0, 0},

@@ -36,31 +36,31 @@
 namespace open3d {
 namespace unit_test {
 
-TEST(PointCloud, Constructor) {
+TEST(PointCloud, ConstructorDefault) {
     geometry::PointCloud pc;
 
-    // inherited from Geometry2D
     EXPECT_EQ(geometry::Geometry::GeometryType::PointCloud,
               pc.GetGeometryType());
     EXPECT_EQ(3, pc.Dimension());
 
-    // public member variables
-    EXPECT_EQ(0u, pc.points_.size());
-    EXPECT_EQ(0u, pc.normals_.size());
-    EXPECT_EQ(0u, pc.colors_.size());
-
-    // public members
-    EXPECT_TRUE(pc.IsEmpty());
-
-    ExpectEQ(Zero3d, pc.GetMinBound());
-    ExpectEQ(Zero3d, pc.GetMaxBound());
-
-    EXPECT_FALSE(pc.HasPoints());
-    EXPECT_FALSE(pc.HasNormals());
-    EXPECT_FALSE(pc.HasColors());
+    EXPECT_EQ(0, pc.points_.size());
+    EXPECT_EQ(0, pc.normals_.size());
+    EXPECT_EQ(0, pc.colors_.size());
 }
 
-TEST(PointCloud, DISABLED_MemberData) { unit_test::NotImplemented(); }
+TEST(PointCloud, ConstructorFromPoints) {
+    std::vector<Eigen::Vector3d> points;
+    points.emplace_back(0, 1, 2);
+    points.emplace_back(3, 4, 5);
+
+    geometry::PointCloud pc(points);
+
+    EXPECT_EQ(2, pc.points_.size());
+    EXPECT_EQ(0, pc.normals_.size());
+    EXPECT_EQ(0, pc.colors_.size());
+
+    ExpectEQ(pc.points_, points);
+}
 
 TEST(PointCloud, Clear) {
     int size = 100;

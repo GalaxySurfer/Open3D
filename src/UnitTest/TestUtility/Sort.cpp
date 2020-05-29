@@ -26,40 +26,67 @@
 
 #include "UnitTest/TestUtility/Sort.h"
 
+#include <algorithm>
+
 namespace open3d {
 namespace unit_test {
 
+template <class T, int M, int N, int A>
+std::vector<Eigen::Matrix<T, M, N, A>> Sort(
+        const std::vector<Eigen::Matrix<T, M, N, A>>& vals) {
+    std::vector<Eigen::Matrix<T, M, N, A>> ret_vals = vals;
+    std::sort(
+            ret_vals.begin(), ret_vals.end(),
+            [](const Eigen::Matrix<T, M, N, A>& lhs,
+               const Eigen::Matrix<T, M, N, A>& rhs) {
+                ASSERT_EQ(lhs.size(), rhs.size())
+                        << "lhs and rhs have different sizes, cannot be sorted";
+                for (int i = 0; i < lhs.size(); i++) {
+                    if (lhs(i) == rhs(i)) {
+                        continue;
+                    } else {
+                        return lhs(i) < rhs(i);
+                    }
+                    return false;
+                }
+            });
+    return ret_vals;
+};
+// //
 // ----------------------------------------------------------------------------
-// Greater than or Equal for sorting Eigen::Vector3d elements.
+// // Greater than or Equal for sorting Eigen::Vector3d elements.
+// //
 // ----------------------------------------------------------------------------
-bool Sort::GE(const Eigen::Vector3d& v0, const Eigen::Vector3d& v1) {
-    if (v0(0, 0) > v1(0, 0)) return true;
+// bool Sort::GE(const Eigen::Vector3d& v0, const Eigen::Vector3d& v1) {
+//     if (v0(0, 0) > v1(0, 0)) return true;
 
-    if (v0(0, 0) == v1(0, 0)) {
-        if (v0(1, 0) > v1(1, 0)) return true;
+//     if (v0(0, 0) == v1(0, 0)) {
+//         if (v0(1, 0) > v1(1, 0)) return true;
 
-        if (v0(1, 0) == v1(1, 0)) {
-            if (v0(2, 0) >= v1(2, 0)) return true;
-        }
-    }
+//         if (v0(1, 0) == v1(1, 0)) {
+//             if (v0(2, 0) >= v1(2, 0)) return true;
+//         }
+//     }
 
-    return false;
-}
+//     return false;
+// }
 
+// //
 // ----------------------------------------------------------------------------
-// Sort a vector of Eigen::Vector3d elements.
+// // Sort a vector of Eigen::Vector3d elements.
+// //
 // ----------------------------------------------------------------------------
-void Sort::Do(std::vector<Eigen::Vector3d>& v) {
-    Eigen::Vector3d temp(0.0, 0.0, 0.0);
-    for (size_t i = 0; i < v.size(); i++) {
-        for (size_t j = 0; j < v.size(); j++) {
-            if (GE(v[i], v[j])) continue;
-            temp = v[j];
-            v[j] = v[i];
-            v[i] = temp;
-        }
-    }
-}
+// void Sort::Do(std::vector<Eigen::Vector3d>& v) {
+//     Eigen::Vector3d temp(0.0, 0.0, 0.0);
+//     for (size_t i = 0; i < v.size(); i++) {
+//         for (size_t j = 0; j < v.size(); j++) {
+//             if (GE(v[i], v[j])) continue;
+//             temp = v[j];
+//             v[j] = v[i];
+//             v[i] = temp;
+//         }
+//     }
+// }
 
 }  // namespace unit_test
 }  // namespace open3d

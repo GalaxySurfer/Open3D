@@ -71,11 +71,6 @@ public:
     AxisAlignedBoundingBox GetAxisAlignedBoundingBox() const override;
     OrientedBoundingBox GetOrientedBoundingBox() const override;
     PointCloud &Transform(const Eigen::Matrix4d &transformation) override;
-
-    /// \brief Tranlate points in point cloud.
-    /// \param translation Translation vector of size (3,)
-    /// \param relative If true, translation is directly applied to the points,
-    /// otherwise, the translated points will be centered at \p translation.
     PointCloud &Translate(const Eigen::Vector3d &translation,
                           bool relative = true) override;
     PointCloud &Scale(const double scale,

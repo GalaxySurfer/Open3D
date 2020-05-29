@@ -170,30 +170,41 @@ TEST(PointCloud, Translate) {
 }
 
 TEST(PointCloud, Scale) {
-    std::vector<Eigen::Vector3d> points = {
-            {0, 1, 2},
-            {6, 7, 8},
-    };
+    std::vector<Eigen::Vector3d> points = {{0, 1, 2}, {6, 7, 8}};
     double scale = 10;
     geometry::PointCloud pc;
 
-    Eigen::Vector3d zero(0, 0, 0);
-    std::vector<Eigen::Vector3d> points_scaled_center_zero = {
-            {0, 10, 20},
-            {60, 70, 80},
-    };
     pc.points_ = points;
-    pc.Scale(scale, zero);
-    ExpectEQ(pc.points_, points_scaled_center_zero);
+    pc.Scale(scale, Eigen::Vector3d(0, 0, 0));
+    ExpectEQ(pc.points_,
+             std::vector<Eigen::Vector3d>({{0, 10, 20}, {60, 70, 80}}));
 
-    Eigen::Vector3d one(1, 1, 1);
-    std::vector<Eigen::Vector3d> points_scaled_center_one = {
-            {-9, 1, 11},
-            {51, 61, 71},
-    };
     pc.points_ = points;
-    pc.Scale(scale, one);
-    ExpectEQ(pc.points_, points_scaled_center_one);
+    pc.Scale(scale, Eigen::Vector3d(1, 1, 1));
+    ExpectEQ(pc.points_,
+             std::vector<Eigen::Vector3d>({{-9, 1, 11}, {51, 61, 71}}));
+}
+
+TEST(PointCloud, Rotate) {
+    std::vector<Eigen::Vector3d> points = {{0, 1, 2}, {3, 4, 5}};
+    std::vector<Eigen::Vector3d> normals = {{5, 4, 3}, {2, 1, 0}};
+    Eigen::Matrix3d R;
+    R = Eigen::AngleAxisd(0.25 * M_PI, Eigen::Vector3d::UnitX()) *
+        Eigen::AngleAxisd(0.5 * M_PI, Eigen::Vector3d::UnitY()) *
+        Eigen::AngleAxisd(0.33 * M_PI, Eigen::Vector3d::UnitZ());
+
+    geometry::PointCloud pc;
+    pc.points_ = points;
+    pc.normals_ = normals;
+    Eigen::Vector3d center = pc.GetCenter();
+    pc.Rotate(R, center);
+
+    ExpectEQ(pc.points_, std::vector<Eigen::Vector3d>({{0, 1.42016, 1.67409},
+                                                       {3, 3.57984, 5.32591}}));
+    ExpectEQ(pc.normals_,
+             std::vector<Eigen::Vector3d>(
+                     {{3, 3.84816, 5.11778}, {0, 1.688476, 1.465963}}));
+    ExpectEQ(pc.GetCenter(), center);  // Rotate relative to the original center
 }
 
 TEST(PointCloud, DISABLED_HasPoints) {

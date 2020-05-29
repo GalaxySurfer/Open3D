@@ -50,13 +50,15 @@ namespace open3d {
 namespace unit_test {
 
 // thresholds for comparing floating point values
-const double THRESHOLD_1E_6 = 1e-6;
+const double THRESHOLD_1E_6 = 1.0 / double(1 << 20);  // Binary-friendly 1e-6
 
 // Eigen Zero()
 const Eigen::Vector2d Zero2d = Eigen::Vector2d::Zero();
 const Eigen::Vector3d Zero3d = Eigen::Vector3d::Zero();
 const Eigen::Matrix<double, 6, 1> Zero6d = Eigen::Matrix<double, 6, 1>::Zero();
 const Eigen::Vector2i Zero2i = Eigen::Vector2i::Zero();
+const Eigen::IOFormat matrix_fmt(
+        Eigen::StreamPrecision, 0, ", ", ",\n", "[", "]", "[", "]");
 
 // Mechanism for reporting unit tests for which there is no implementation yet.
 void NotImplemented();
@@ -67,8 +69,11 @@ void ExpectEQ(const Eigen::Matrix<T, M, N, A>& v0,
               const Eigen::Matrix<T, M, N, A>& v1,
               double threshold = THRESHOLD_1E_6) {
     EXPECT_EQ(v0.size(), v1.size());
-    for (int i = 0; i < v0.size(); i++)
-        EXPECT_NEAR(v0.coeff(i), v1.coeff(i), threshold);
+    EXPECT_TRUE(v0.isApprox(v1, threshold))
+            << "threshold:\n"
+            << threshold << "\nv0:\n"
+            << v0.format(matrix_fmt) << "\nv1:\n"
+            << v1.format(matrix_fmt);
 }
 template <class T, int M, int N, int A>
 void ExpectEQ(const std::vector<Eigen::Matrix<T, M, N, A>>& v0,

@@ -125,11 +125,11 @@ TEST(PointCloud, Transform) {
             5.5, 6.0, 6.5, 7.0, 7.5;
 
     std::vector<Eigen::Vector3d> points_transformed = {
-            {0, 0, 0},
-            {0, 0, 0},
+            {0.20000, 0.46666, 0.73333},
+            {0.11926, 0.41284, 0.70642},
     };
     std::vector<Eigen::Vector3d> normals_transformed = {
-            {0, 0, 0},
+            {2, 16, 30},
             {0, 0, 0},
     };
 
@@ -137,8 +137,8 @@ TEST(PointCloud, Transform) {
     pc.points_ = points;
     pc.normals_ = normals;
     pc.Transform(transformation);
-    ExpectEQ(pc.points_, points_transformed);
-    ExpectEQ(pc.normals_, normals_transformed);
+    ExpectEQ(pc.points_, points_transformed, 1e-4);
+    ExpectEQ(pc.normals_, normals_transformed, 1e-4);
 }
 
 TEST(PointCloud, DISABLED_HasPoints) {

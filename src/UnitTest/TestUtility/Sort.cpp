@@ -66,5 +66,24 @@ TEST(Sort, SortWithIndices) {
     EXPECT_EQ(SortWithIndices(points).second, indices);
 }
 
+TEST(Sort, GetIndicesAToB) {
+    std::vector<Eigen::Vector3d> a{
+            {3, 3, 3},
+            {1, 1, 1},
+            {0, 0, 0},
+            {2, 2, 2},
+    };
+    std::vector<Eigen::Vector3d> b{
+            {2, 2, 2},
+            {0, 0, 0},
+            {1, 1, 1},
+            {3, 3, 3},
+    };
+    ExpectEQ(ApplyIndices(a, GetIndicesAToB(a, a)), a);
+    ExpectEQ(ApplyIndices(b, GetIndicesAToB(b, b)), b);
+    ExpectEQ(ApplyIndices(a, GetIndicesAToB(a, b)), b);
+    ExpectEQ(ApplyIndices(b, GetIndicesAToB(b, a)), a);
+}
+
 }  // namespace unit_test
 }  // namespace open3d

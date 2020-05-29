@@ -26,7 +26,8 @@
 
 #pragma once
 
-#include <gtest/gtest.h>
+#include "TestUtility/UnitTest.h"
+
 #include <Eigen/Core>
 #include <algorithm>
 #include <numeric>
@@ -36,7 +37,7 @@ namespace open3d {
 namespace unit_test {
 
 template <class T, int M, int N, int A>
-std::vector<Eigen::Matrix<T, M, N, A>> SortApplyIndices(
+std::vector<Eigen::Matrix<T, M, N, A>> ApplyIndices(
         const std::vector<Eigen::Matrix<T, M, N, A>>& vals,
         const std::vector<size_t>& indices) {
     std::vector<Eigen::Matrix<T, M, N, A>> vals_sorted;
@@ -63,13 +64,50 @@ SortWithIndices(const std::vector<Eigen::Matrix<T, M, N, A>>& vals) {
                          }
                          return false;
                      });
-    return std::make_pair(SortApplyIndices(vals, indices), indices);
+    return std::make_pair(ApplyIndices(vals, indices), indices);
 };
 
 template <class T, int M, int N, int A>
 std::vector<Eigen::Matrix<T, M, N, A>> Sort(
         const std::vector<Eigen::Matrix<T, M, N, A>>& vals) {
     return SortWithIndices(vals).first;
+};
+
+/// Returns indices that can transform array A to B, i.e. B[i] ~= A[indices[i]].
+/// This assumes the sorted \p a_vals and the sorted \p b_vals are close or
+/// equal.
+//
+// \param a Values of array A.
+// \param b Values of array B.
+// \return indices such that B[i] ~= A[indices[i]]
+template <class T, int M, int N, int A>
+std::vector<size_t> GetIndicesAToB(
+        const std::vector<Eigen::Matrix<T, M, N, A>>& a,
+        const std::vector<Eigen::Matrix<T, M, N, A>>& b,
+        double threshold = 1e-6) {
+    EXPECT_EQ(a.size(), b.size()) << "a and b does not have the same size";
+    size_t size = a.size();
+
+    std::vector<Eigen::Matrix<T, M, N, A>> a_sorted;
+    std::vector<size_t> indices_a_to_sorted;
+    std::tie(a_sorted, indices_a_to_sorted) = SortWithIndices(a);
+
+    std::vector<Eigen::Matrix<T, M, N, A>> b_sorted;
+    std::vector<size_t> indices_b_to_sorted;
+    std::tie(b_sorted, indices_b_to_sorted) = SortWithIndices(b);
+
+    ExpectEQ(a_sorted, b_sorted, threshold);
+
+    std::vector<size_t> indices_sorted_to_b(size);
+    for (size_t i = 0; i < size; ++i) {
+        indices_sorted_to_b[indices_b_to_sorted[i]] = i;
+    }
+
+    std::vector<size_t> indices_a_to_b(size);
+    for (size_t i = 0; i < size; i++) {
+        indices_a_to_b[i] = indices_a_to_sorted[indices_sorted_to_b[i]];
+    }
+    return indices_a_to_b;
 };
 
 }  // namespace unit_test

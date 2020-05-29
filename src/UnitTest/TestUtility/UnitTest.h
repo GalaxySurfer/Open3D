@@ -34,6 +34,8 @@
 
 #include <gtest/gtest.h>
 #include <Eigen/Core>
+#include <sstream>
+#include <string>
 #include <vector>
 
 #include "Open3D/Macro.h"
@@ -45,12 +47,16 @@
 // The GPU_CONDITIONAL_COMPILE_STR value is configured in CMake
 #define CUDA_CONDITIONAL_TEST(test_name) \
     OPEN3D_CONCATENATE(GPU_CONDITIONAL_TEST_STR, test_name)
+#define _LINE_INFO ::open3d::unit_test::LineInfo(__FILE__, __LINE__)
+#define ExpectEQ(arg, ...) _ExpectEQ(_LINE_INFO, arg, __VA_ARGS__)
 
 namespace open3d {
 namespace unit_test {
 
+std::string LineInfo(const char* file, int line);
+
 // thresholds for comparing floating point values
-const double THRESHOLD_1E_6 = 1.0 / double(1 << 20);  // Binary-friendly 1e-6
+const double THRESHOLD_1E_6 = 1e-6;
 
 // Eigen Zero()
 const Eigen::Vector2d Zero2d = Eigen::Vector2d::Zero();
@@ -65,25 +71,30 @@ void NotImplemented();
 
 // Equal test.
 template <class T, int M, int N, int A>
-void ExpectEQ(const Eigen::Matrix<T, M, N, A>& v0,
-              const Eigen::Matrix<T, M, N, A>& v1,
-              double threshold = THRESHOLD_1E_6) {
+void _ExpectEQ(const std::string& line_info,
+               const Eigen::Matrix<T, M, N, A>& v0,
+               const Eigen::Matrix<T, M, N, A>& v1,
+               double threshold = THRESHOLD_1E_6) {
     EXPECT_EQ(v0.size(), v1.size());
     EXPECT_TRUE(v0.isApprox(v1, threshold))
-            << "threshold:\n"
+            << line_info << "threshold:\n"
             << threshold << "\nv0:\n"
             << v0.format(matrix_fmt) << "\nv1:\n"
             << v1.format(matrix_fmt);
 }
 template <class T, int M, int N, int A>
-void ExpectEQ(const std::vector<Eigen::Matrix<T, M, N, A>>& v0,
-              const std::vector<Eigen::Matrix<T, M, N, A>>& v1,
-              double threshold = THRESHOLD_1E_6) {
+void _ExpectEQ(const std::string& line_info,
+               const std::vector<Eigen::Matrix<T, M, N, A>>& v0,
+               const std::vector<Eigen::Matrix<T, M, N, A>>& v1,
+               double threshold = THRESHOLD_1E_6) {
     EXPECT_EQ(v0.size(), v1.size());
-    for (size_t i = 0; i < v0.size(); i++) ExpectEQ(v0[i], v1[i], threshold);
+    for (size_t i = 0; i < v0.size(); i++) {
+        _ExpectEQ(line_info, v0[i], v1[i], threshold);
+    }
 }
 template <class T, int M, int N, int A>
-void ExpectEQ(
+void _ExpectEQ(
+        const std::string& line_info,
         const std::vector<Eigen::Matrix<T, M, N, A>,
                           Eigen::aligned_allocator<Eigen::Matrix<T, M, N, A>>>&
                 v0,
@@ -92,7 +103,9 @@ void ExpectEQ(
                 v1,
         double threshold = THRESHOLD_1E_6) {
     EXPECT_EQ(v0.size(), v1.size());
-    for (size_t i = 0; i < v0.size(); i++) ExpectEQ(v0[i], v1[i], threshold);
+    for (size_t i = 0; i < v0.size(); i++) {
+        _ExpectEQ(line_info, v0[i], v1[i], threshold);
+    }
 }
 
 // Less than or Equal test.
@@ -134,40 +147,52 @@ void ExpectGE(const std::vector<Eigen::Matrix<T, M, N, A>>& v0,
 }
 
 // Test equality of two arrays of uint8_t.
-void ExpectEQ(const uint8_t* const v0,
-              const uint8_t* const v1,
-              const size_t& size);
+void _ExpectEQ(const std::string& line_info,
+               const uint8_t* const v0,
+               const uint8_t* const v1,
+               const size_t& size);
 
 // Test equality of two vectors of uint8_t.
-void ExpectEQ(const std::vector<uint8_t>& v0, const std::vector<uint8_t>& v1);
+void _ExpectEQ(const std::string& line_info,
+               const std::vector<uint8_t>& v0,
+               const std::vector<uint8_t>& v1);
 
 // Test equality of two arrays of int.
-void ExpectEQ(const int* const v0, const int* const v1, const size_t& size);
+void _ExpectEQ(const std::string& line_info,
+               const int* const v0,
+               const int* const v1,
+               const size_t& size);
 
 // Test equality of two vectors of int.
-void ExpectEQ(const std::vector<int>& v0, const std::vector<int>& v1);
+void _ExpectEQ(const std::string& line_info,
+               const std::vector<int>& v0,
+               const std::vector<int>& v1);
 
 // Test equality of two arrays of float.
-void ExpectEQ(const float* const v0,
-              const float* const v1,
-              const size_t& size,
-              float threshold = THRESHOLD_1E_6);
+void _ExpectEQ(const std::string& line_info,
+               const float* const v0,
+               const float* const v1,
+               const size_t& size,
+               float threshold = THRESHOLD_1E_6);
 
 // Test equality of two vectors of float.
-void ExpectEQ(const std::vector<float>& v0,
-              const std::vector<float>& v1,
-              float threshold = THRESHOLD_1E_6);
+void _ExpectEQ(const std::string& line_info,
+               const std::vector<float>& v0,
+               const std::vector<float>& v1,
+               float threshold = THRESHOLD_1E_6);
 
 // Test equality of two arrays of double.
-void ExpectEQ(const double* const v0,
-              const double* const v1,
-              const size_t& size,
-              double threshold = THRESHOLD_1E_6);
+void _ExpectEQ(const std::string& line_info,
+               const double* const v0,
+               const double* const v1,
+               const size_t& size,
+               double threshold = THRESHOLD_1E_6);
 
 // Test equality of two vectors of double.
-void ExpectEQ(const std::vector<double>& v0,
-              const std::vector<double>& v1,
-              double threshold = THRESHOLD_1E_6);
+void _ExpectEQ(const std::string& line_info,
+               const std::vector<double>& v0,
+               const std::vector<double>& v1,
+               double threshold = THRESHOLD_1E_6);
 
 // Reinterpret cast from uint8_t* to float*.
 template <class T>

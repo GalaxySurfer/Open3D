@@ -26,21 +26,32 @@
 
 #pragma once
 
+#include <gtest/gtest.h>
 #include <Eigen/Core>
+#include <algorithm>
 #include <vector>
 
 namespace open3d {
 namespace unit_test {
-// namespace Sort {
 
-// // Greater than or Equal for sorting Eigen::Vector3d elements.
-// bool GE(const Eigen::Vector3d& v0, const Eigen::Vector3d& v1);
+template <class T, int M, int N, int A>
+std::vector<Eigen::Matrix<T, M, N, A>> Sort(
+        const std::vector<Eigen::Matrix<T, M, N, A>>& vals) {
+    std::vector<Eigen::Matrix<T, M, N, A>> ret_vals = vals;
+    std::sort(ret_vals.begin(), ret_vals.end(),
+              [](const Eigen::Matrix<T, M, N, A>& lhs,
+                 const Eigen::Matrix<T, M, N, A>& rhs) -> bool {
+                  for (int i = 0; i < lhs.size(); i++) {
+                      if (lhs(i) == rhs(i)) {
+                          continue;
+                      } else {
+                          return lhs(i) < rhs(i);
+                      }
+                  }
+                  return false;
+              });
+    return ret_vals;
+};
 
-// // Sort a vector of Eigen::Vector3d elements.
-// // method needed because std::sort failed on TravisCI/macOS (works fine on
-// // Linux)
-// void Do(std::vector<Eigen::Vector3d>& v);
-
-// }  // namespace Sort
 }  // namespace unit_test
 }  // namespace open3d

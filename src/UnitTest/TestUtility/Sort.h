@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include "TestUtility/UnitTest.h"
-
 #include <Eigen/Core>
 #include <algorithm>
 #include <numeric>
 #include <vector>
+
+#include "TestUtility/UnitTest.h"
 
 namespace open3d {
 namespace unit_test {
@@ -92,24 +92,21 @@ std::vector<size_t> GetIndicesAToB(
         const std::vector<Eigen::Matrix<T, M, N, A>>& a,
         const std::vector<Eigen::Matrix<T, M, N, A>>& b,
         double threshold = 1e-6) {
-    EXPECT_EQ(a.size(), b.size()) << "a and b does not have the same size";
+    EXPECT_EQ(a.size(), b.size());
     size_t size = a.size();
 
     std::vector<Eigen::Matrix<T, M, N, A>> a_sorted;
     std::vector<size_t> indices_a_to_sorted;
     std::tie(a_sorted, indices_a_to_sorted) = SortWithIndices(a);
-
     std::vector<Eigen::Matrix<T, M, N, A>> b_sorted;
     std::vector<size_t> indices_b_to_sorted;
     std::tie(b_sorted, indices_b_to_sorted) = SortWithIndices(b);
-
     ExpectEQ(a_sorted, b_sorted, threshold);
 
     std::vector<size_t> indices_sorted_to_b(size);
     for (size_t i = 0; i < size; ++i) {
         indices_sorted_to_b[indices_b_to_sorted[i]] = i;
     }
-
     std::vector<size_t> indices_a_to_b(size);
     for (size_t i = 0; i < size; i++) {
         indices_a_to_b[i] = indices_a_to_sorted[indices_sorted_to_b[i]];

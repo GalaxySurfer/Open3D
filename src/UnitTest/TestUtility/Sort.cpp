@@ -87,5 +87,25 @@ TEST(Sort, GetIndicesAToB) {
     ExpectEQ(ApplyIndices(b, GetIndicesAToB(b, a)), a);
 }
 
+TEST(Sort, GetIndicesAToBClose) {
+    std::vector<Eigen::Vector3d> a{
+            {3, 3, 3},
+            {1, 1, 1},
+            {4, 4, 4},
+            {2, 2, 2},
+    };
+    std::vector<Eigen::Vector3d> b{
+            {2.00001, 2.00001, 2},
+            {4, 4.00001, 4},
+            {1.00001, 1, 1.00001},
+            {3, 3, 3.00001},
+    };
+    double threshold = 0.001;
+    ExpectEQ(ApplyIndices(a, GetIndicesAToB(a, a, threshold)), a, threshold);
+    ExpectEQ(ApplyIndices(b, GetIndicesAToB(b, b, threshold)), b, threshold);
+    ExpectEQ(ApplyIndices(a, GetIndicesAToB(a, b, threshold)), b, threshold);
+    ExpectEQ(ApplyIndices(b, GetIndicesAToB(b, a, threshold)), a, threshold);
+}
+
 }  // namespace unit_test
 }  // namespace open3d

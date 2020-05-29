@@ -47,6 +47,11 @@ std::vector<Eigen::Matrix<T, M, N, A>> ApplyIndices(
     return vals_sorted;
 };
 
+/// \brief Returns ascending sorted values and the sorting indices.
+///
+/// \param vals Values of array.
+/// \return A pair of sorted_vals and indices, s.t. sorted_val[i] =
+/// vals[indices[i]].
 template <class T, int M, int N, int A>
 std::pair<std::vector<Eigen::Matrix<T, M, N, A>>, std::vector<size_t>>
 SortWithIndices(const std::vector<Eigen::Matrix<T, M, N, A>>& vals) {

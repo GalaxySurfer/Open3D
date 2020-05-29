@@ -141,6 +141,34 @@ TEST(PointCloud, Transform) {
     ExpectEQ(pc.normals_, normals_transformed, 1e-4);
 }
 
+TEST(PointCloud, Translate) {
+    std::vector<Eigen::Vector3d> points = {
+            {0, 1, 2},
+            {6, 7, 8},
+    };
+    Eigen::Vector3d translation(10, 20, 30);
+    std::vector<Eigen::Vector3d> points_translated = {
+            {10, 21, 32},
+            {16, 27, 38},
+    };
+    std::vector<Eigen::Vector3d> points_translated_non_relative = {
+            {7, 17, 27},
+            {13, 23, 33},
+    };
+
+    // Relative: direct translation.
+    geometry::PointCloud pc;
+    pc.points_ = points;
+    pc.Translate(translation);
+    ExpectEQ(pc.points_, points_translated);
+
+    // Non-relative: new center is the translation.
+    pc.points_ = points;
+    pc.Translate(translation, /*relative=*/false);
+    ExpectEQ(pc.points_, points_translated_non_relative);
+    ExpectEQ(pc.GetCenter(), translation);
+}
+
 TEST(PointCloud, DISABLED_HasPoints) {
     int size = 100;
 

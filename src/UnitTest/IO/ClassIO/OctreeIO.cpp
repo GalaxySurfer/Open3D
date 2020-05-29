@@ -32,7 +32,7 @@
 #include "Open3D/IO/ClassIO/OctreeIO.h"
 #include "Open3D/IO/ClassIO/PointCloudIO.h"
 #include "Open3D/Utility/IJsonConvertible.h"
-#include "TestUtility/UnitTest.h"
+#include "UnitTest/TestUtility/UnitTest.h"
 
 namespace open3d {
 namespace unit_test {

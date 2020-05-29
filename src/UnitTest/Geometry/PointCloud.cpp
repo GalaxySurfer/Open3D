@@ -31,7 +31,8 @@
 #include "Open3D/Geometry/Image.h"
 #include "Open3D/Geometry/PointCloud.h"
 #include "Open3D/Geometry/RGBDImage.h"
-#include "TestUtility/UnitTest.h"
+#include "UnitTest/TestUtility/Sort.h"
+#include "UnitTest/TestUtility/UnitTest.h"
 
 namespace open3d {
 namespace unit_test {
@@ -498,26 +499,27 @@ TEST(PointCloud, VoxelDownSample) {
     pc.normals_ = normals;
     pc.colors_ = colors;
 
+    // Ground-truth reference
+    std::vector<Eigen::Vector3d> points_down{
+            {0.65, 0.65, 0.65},
+            {0.55, 1.55, 2.35},
+    };
+    std::vector<Eigen::Vector3d> normals_down{
+            {0, 3, 4},
+            {1, 1, 2},
+    };
+    std::vector<Eigen::Vector3d> colors_down{
+            {0.0, 0.3, 0.4},
+            {0.1, 0.1, 0.2},
+    };
+
     std::shared_ptr<geometry::PointCloud> pc_down = pc.VoxelDownSample(1.0);
-    std::vector<size_t> sort_indices = SortWithIndices(pc_down->points_).second;
-    ExpectEQ(ApplyIndices(pc_down->points_, sort_indices),
-             ApplyIndices(std::vector<Eigen::Vector3d>({
-                                  {0.65, 0.65, 0.65},
-                                  {0.55, 1.55, 2.35},
-                          }),
-                          sort_indices));
-    ExpectEQ(ApplyIndices(pc_down->normals_, sort_indices),
-             ApplyIndices(std::vector<Eigen::Vector3d>({
-                                  {0, 3, 4},
-                                  {1, 1, 2},
-                          }),
-                          sort_indices));
-    ExpectEQ(ApplyIndices(pc_down->colors_, sort_indices),
-             ApplyIndices(std::vector<Eigen::Vector3d>({
-                                  {0.0, 0.3, 0.4},
-                                  {0.1, 0.1, 0.2},
-                          }),
-                          sort_indices));
+    std::vector<size_t> sort_indices =
+            GetIndicesAToB(pc_down->points_, points_down);
+
+    ExpectEQ(ApplyIndices(pc_down->points_, sort_indices), points_down);
+    ExpectEQ(ApplyIndices(pc_down->normals_, sort_indices), normals_down);
+    ExpectEQ(ApplyIndices(pc_down->colors_, sort_indices), colors_down);
 }
 
 TEST(PointCloud, DISABLED_UniformDownSample) {

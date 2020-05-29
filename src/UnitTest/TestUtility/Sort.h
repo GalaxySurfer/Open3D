@@ -26,12 +26,12 @@
 
 #pragma once
 
+#include "TestUtility/UnitTest.h"
+
 #include <Eigen/Core>
 #include <algorithm>
 #include <numeric>
 #include <vector>
-
-#include "TestUtility/UnitTest.h"
 
 namespace open3d {
 namespace unit_test {

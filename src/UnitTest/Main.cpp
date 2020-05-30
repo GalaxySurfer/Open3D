@@ -33,9 +33,7 @@
 #endif
 
 #include "Open3D/Utility/Console.h"
-#include "UnitTest/TestUtility/Print.h"
-#include "UnitTest/TestUtility/Rand.h"
-#include "UnitTest/TestUtility/Raw.h"
+#include "UnitTest/UnitTest.h"
 
 #ifdef BUILD_CUDA_MODULE
 /// Returns true if --disable_p2p flag is used.

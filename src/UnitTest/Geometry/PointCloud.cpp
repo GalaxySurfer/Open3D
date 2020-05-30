@@ -521,46 +521,59 @@ TEST(PointCloud, VoxelDownSample) {
     ExpectEQ(ApplyIndices(pc_down->colors_, sort_indices), colors_down);
 }
 
-TEST(PointCloud, DISABLED_UniformDownSample) {
-    std::vector<Eigen::Vector3d> ref = {{839.215686, 392.156863, 780.392157},
-                                        {364.705882, 509.803922, 949.019608},
-                                        {152.941176, 400.000000, 129.411765},
-                                        {490.196078, 972.549020, 290.196078},
-                                        {66.666667, 949.019608, 525.490196},
-                                        {235.294118, 968.627451, 901.960784},
-                                        {435.294118, 929.411765, 929.411765},
-                                        {827.450980, 329.411765, 227.450980},
-                                        {396.078431, 811.764706, 682.352941},
-                                        {615.686275, 278.431373, 784.313725},
-                                        {101.960784, 125.490196, 494.117647},
-                                        {584.313725, 243.137255, 149.019608},
-                                        {172.549020, 239.215686, 796.078431},
-                                        {66.666667, 203.921569, 458.823529},
-                                        {996.078431, 50.980392, 866.666667},
-                                        {356.862745, 549.019608, 576.470588},
-                                        {745.098039, 627.450980, 35.294118},
-                                        {666.666667, 494.117647, 160.784314},
-                                        {325.490196, 231.372549, 70.588235},
-                                        {470.588235, 592.156863, 941.176471},
-                                        {674.509804, 482.352941, 478.431373},
-                                        {345.098039, 184.313725, 607.843137},
-                                        {529.411765, 86.274510, 258.823529},
-                                        {772.549020, 286.274510, 329.411765},
-                                        {764.705882, 698.039216, 117.647059}};
-
-    size_t size = 100;
+TEST(PointCloud, UniformDownSample) {
+    std::vector<Eigen::Vector3d> points({
+            {0, 0, 0},
+            {1, 0, 0},
+            {2, 0, 0},
+            {3, 0, 0},
+            {4, 0, 0},
+            {5, 0, 0},
+            {6, 0, 0},
+            {7, 0, 0},
+    });
+    std::vector<Eigen::Vector3d> normals({
+            {0, 0, 0},
+            {0, 1, 0},
+            {0, 2, 0},
+            {0, 3, 0},
+            {0, 4, 0},
+            {0, 5, 0},
+            {0, 6, 0},
+            {0, 7, 0},
+    });
+    std::vector<Eigen::Vector3d> colors({
+            {0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.1},
+            {0.0, 0.0, 0.2},
+            {0.0, 0.0, 0.3},
+            {0.0, 0.0, 0.4},
+            {0.0, 0.0, 0.5},
+            {0.0, 0.0, 0.6},
+            {0.0, 0.0, 0.7},
+    });
     geometry::PointCloud pc;
+    pc.points_ = points;
+    pc.normals_ = normals;
+    pc.colors_ = colors;
 
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
+    std::shared_ptr<geometry::PointCloud> pc_down = pc.UniformDownSample(3);
+    ExpectEQ(pc_down->points_, std::vector<Eigen::Vector3d>({
+                                       {0, 0, 0},
+                                       {3, 0, 0},
+                                       {6, 0, 0},
 
-    pc.points_.resize(size);
-    Rand(pc.points_, vmin, vmax, 0);
+                               }));
+    ExpectEQ(pc_down->colors_, std::vector<Eigen::Vector3d>({
 
-    size_t every_k_points = 4;
-    auto output_pc = pc.UniformDownSample(every_k_points);
-
-    ExpectEQ(ref, output_pc->points_);
+                                       {0, 3, 0},
+                                       {0, 6, 0},
+                               }));
+    ExpectEQ(pc_down->normals_, std::vector<Eigen::Vector3d>({
+                                        {0.0, 0.0, 0.0},
+                                        {0.0, 0.0, 0.3},
+                                        {0.0, 0.0, 0.6},
+                                }));
 }
 
 TEST(PointCloud, DISABLED_CropPointCloud) {

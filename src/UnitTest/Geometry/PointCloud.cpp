@@ -521,7 +521,7 @@ TEST(PointCloud, VoxelDownSample) {
     ExpectEQ(ApplyIndices(pc_down->colors_, sort_indices), colors_down);
 }
 
-TEST(PointCloud, ) {
+TEST(PointCloud, UniformDownSample) {
     std::vector<Eigen::Vector3d> points({
             {0, 0, 0},
             {1, 0, 0},
@@ -564,16 +564,16 @@ TEST(PointCloud, ) {
                                        {6, 0, 0},
 
                                }));
-    ExpectEQ(pc_down->colors_, std::vector<Eigen::Vector3d>({
-                                       {0, 0, 0},
-                                       {0, 3, 0},
-                                       {0, 6, 0},
-                               }));
     ExpectEQ(pc_down->normals_, std::vector<Eigen::Vector3d>({
-                                        {0.0, 0.0, 0.0},
-                                        {0.0, 0.0, 0.3},
-                                        {0.0, 0.0, 0.6},
+                                        {0, 0, 0},
+                                        {0, 3, 0},
+                                        {0, 6, 0},
                                 }));
+    ExpectEQ(pc_down->colors_, std::vector<Eigen::Vector3d>({
+                                       {0.0, 0.0, 0.0},
+                                       {0.0, 0.0, 0.3},
+                                       {0.0, 0.0, 0.6},
+                               }));
 }
 
 TEST(PointCloud, DISABLED_CropPointCloud) {

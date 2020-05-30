@@ -32,7 +32,7 @@
 #include "Open3D/Geometry/PointCloud.h"
 #include "Open3D/Geometry/RGBDImage.h"
 #include "UnitTest/TestUtility/Sort.h"
-#include "UnitTest/TestUtility/UnitTest.h"
+#include "UnitTest/UnitTest.h"
 
 namespace open3d {
 namespace unit_test {

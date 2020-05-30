@@ -30,7 +30,7 @@
 #include "Open3D/Geometry/HalfEdgeTriangleMesh.h"
 #include "Open3D/IO/ClassIO/TriangleMeshIO.h"
 #include "Open3D/Utility/Helper.h"
-#include "UnitTest/TestUtility/UnitTest.h"
+#include "UnitTest/UnitTest.h"
 
 namespace open3d {
 namespace unit_test {

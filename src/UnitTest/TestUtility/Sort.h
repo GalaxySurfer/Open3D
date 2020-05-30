@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "UnitTest/TestUtility/UnitTest.h"
+#include "UnitTest/UnitTest.h"
 
 #include <Eigen/Core>
 #include <algorithm>

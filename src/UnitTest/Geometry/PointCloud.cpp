@@ -111,7 +111,25 @@ TEST(PointCloud, GetCenter) {
     ExpectEQ(pc_empty.GetCenter(), Eigen::Vector3d(0, 0, 0));
 }
 
-TEST(PointCloud, DISABLED_GetAxisAlignedBoundingBox) {}
+TEST(PointCloud, GetAxisAlignedBoundingBox) {
+    std::vector<Eigen::Vector3d> points = {
+            {0, 2, 0},
+            {1, 1, 2},
+            {1, 0, 3},
+    };
+    geometry::PointCloud pc(points);
+    geometry::AxisAlignedBoundingBox aabb = pc.GetAxisAlignedBoundingBox();
+    EXPECT_EQ(aabb.min_bound_, Eigen::Vector3d(0, 0, 0));
+    EXPECT_EQ(aabb.max_bound_, Eigen::Vector3d(1, 2, 3));
+    EXPECT_EQ(aabb.color_, Eigen::Vector3d(0, 0, 0));
+
+    geometry::PointCloud pc_empty;
+    geometry::AxisAlignedBoundingBox aabb_empty =
+            pc_empty.GetAxisAlignedBoundingBox();
+    EXPECT_EQ(aabb_empty.min_bound_, Eigen::Vector3d(0, 0, 0));
+    EXPECT_EQ(aabb_empty.max_bound_, Eigen::Vector3d(0, 0, 0));
+    EXPECT_EQ(aabb_empty.color_, Eigen::Vector3d(0, 0, 0));
+}
 
 TEST(PointCloud, DISABLED_GetOrientedBoundingBox) {}
 

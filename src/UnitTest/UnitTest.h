@@ -42,6 +42,7 @@
 #include "UnitTest/TestUtility/Compare.h"
 #include "UnitTest/TestUtility/Print.h"
 #include "UnitTest/TestUtility/Rand.h"
+#include "UnitTest/TestUtility/Raw.h"
 #include "UnitTest/TestUtility/Sort.h"
 
 // GPU_CONDITIONAL_COMPILE_STR is "" if gpu is available, otherwise "DISABLED_"

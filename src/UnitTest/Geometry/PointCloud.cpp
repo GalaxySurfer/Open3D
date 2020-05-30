@@ -31,7 +31,6 @@
 #include "Open3D/Geometry/Image.h"
 #include "Open3D/Geometry/PointCloud.h"
 #include "Open3D/Geometry/RGBDImage.h"
-#include "UnitTest/TestUtility/Sort.h"
 #include "UnitTest/UnitTest.h"
 
 namespace open3d {

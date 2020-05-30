@@ -24,10 +24,7 @@
 // IN THE SOFTWARE.
 // ----------------------------------------------------------------------------
 
-#include <Eigen/Core>
-#include <iostream>
-
-#include "UnitTest/TestUtility/UnitTest.h"
+#include "UnitTest/TestUtility/Compare.h"
 
 namespace open3d {
 namespace unit_test {

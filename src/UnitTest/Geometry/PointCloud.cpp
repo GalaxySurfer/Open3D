@@ -648,24 +648,61 @@ TEST(PointCloud, UniformDownSample) {
                                }));
 }
 
-TEST(PointCloud, DISABLED_CropPointCloud) {
-    size_t size = 100;
-    geometry::PointCloud pc;
+TEST(PointCloud, Crop_AxisAlignedBoundingBox) {
+    geometry::AxisAlignedBoundingBox aabb({0, 0, 0}, {2, 2, 2});
+    geometry::PointCloud pc({
+            {0, 0, 0},
+            {0, 0, 2},
+            {2, 2, 2},
+            {1, 1, 1},
+            {1, 1, 2},
+            {3, 1, 1},
+            {-1, 1, 1},
+    });
+    pc.normals_ = std::vector<Eigen::Vector3d>({
+            {0, 0, 0},
+            {1, 0, 0},
+            {2, 0, 0},
+            {3, 0, 0},
+            {4, 0, 0},
+            {5, 0, 0},
+            {6, 0, 0},
+    });
+    pc.colors_ = std::vector<Eigen::Vector3d>({
+            {0.0, 0.0, 0.0},
+            {0.1, 0.0, 0.0},
+            {0.2, 0.0, 0.0},
+            {0.3, 0.0, 0.0},
+            {0.4, 0.0, 0.0},
+            {0.5, 0.0, 0.0},
+            {0.6, 0.0, 0.0},
+    });
 
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
-
-    pc.points_.resize(size);
-    Rand(pc.points_, vmin, vmax, 0);
-
-    Eigen::Vector3d minBound(200.0, 200.0, 200.0);
-    Eigen::Vector3d maxBound(800.0, 800.0, 800.0);
-    auto output_pc =
-            pc.Crop(geometry::AxisAlignedBoundingBox(minBound, maxBound));
-
-    ExpectLE(minBound, output_pc->points_);
-    ExpectGE(maxBound, output_pc->points_);
+    std::shared_ptr<geometry::PointCloud> pc_crop = pc.Crop(aabb);
+    ExpectEQ(pc_crop->points_, std::vector<Eigen::Vector3d>({
+                                       {0, 0, 0},
+                                       {0, 0, 2},
+                                       {2, 2, 2},
+                                       {1, 1, 1},
+                                       {1, 1, 2},
+                               }));
+    ExpectEQ(pc_crop->normals_, std::vector<Eigen::Vector3d>({
+                                        {0, 0, 0},
+                                        {1, 0, 0},
+                                        {2, 0, 0},
+                                        {3, 0, 0},
+                                        {4, 0, 0},
+                                }));
+    ExpectEQ(pc_crop->colors_, std::vector<Eigen::Vector3d>({
+                                       {0.0, 0.0, 0.0},
+                                       {0.1, 0.0, 0.0},
+                                       {0.2, 0.0, 0.0},
+                                       {0.3, 0.0, 0.0},
+                                       {0.4, 0.0, 0.0},
+                               }));
 }
+
+TEST(PointCloud, Crop_OrientedBoundingBox) {}
 
 TEST(PointCloud, DISABLED_EstimateNormals) {
     std::vector<Eigen::Vector3d> ref = {

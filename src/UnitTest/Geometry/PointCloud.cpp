@@ -82,9 +82,7 @@ TEST(PointCloud, Clear_IsEmpty) {
 }
 
 TEST(PointCloud, GetMinBound) {
-    std::vector<Eigen::Vector3d> points = {
-            {1, 10, 20}, {30, 2, 40}, {50, 60, 3}};
-    geometry::PointCloud pc(points);
+    geometry::PointCloud pc({{1, 10, 20}, {30, 2, 40}, {50, 60, 3}});
     ExpectEQ(pc.GetMinBound(), Eigen::Vector3d(1, 2, 3));
 
     geometry::PointCloud pc_empty;
@@ -92,9 +90,7 @@ TEST(PointCloud, GetMinBound) {
 }
 
 TEST(PointCloud, GetMaxBound) {
-    std::vector<Eigen::Vector3d> points = {
-            {1, 10, 20}, {30, 2, 40}, {50, 60, 3}};
-    geometry::PointCloud pc(points);
+    geometry::PointCloud pc({{1, 10, 20}, {30, 2, 40}, {50, 60, 3}});
     ExpectEQ(pc.GetMaxBound(), Eigen::Vector3d(50, 60, 40));
 
     geometry::PointCloud pc_empty;
@@ -102,9 +98,7 @@ TEST(PointCloud, GetMaxBound) {
 }
 
 TEST(PointCloud, GetCenter) {
-    std::vector<Eigen::Vector3d> points = {
-            {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11}};
-    geometry::PointCloud pc(points);
+    geometry::PointCloud pc({{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11}});
     ExpectEQ(pc.GetCenter(), Eigen::Vector3d(4.5, 5.5, 6.5));
 
     geometry::PointCloud pc_empty;
@@ -112,12 +106,7 @@ TEST(PointCloud, GetCenter) {
 }
 
 TEST(PointCloud, GetAxisAlignedBoundingBox) {
-    std::vector<Eigen::Vector3d> points = {
-            {0, 2, 0},
-            {1, 1, 2},
-            {1, 0, 3},
-    };
-    geometry::PointCloud pc(points);
+    geometry::PointCloud pc({{0, 2, 0}, {1, 1, 2}, {1, 0, 3}});
     geometry::AxisAlignedBoundingBox aabb = pc.GetAxisAlignedBoundingBox();
     EXPECT_EQ(aabb.min_bound_, Eigen::Vector3d(0, 0, 0));
     EXPECT_EQ(aabb.max_bound_, Eigen::Vector3d(1, 2, 3));

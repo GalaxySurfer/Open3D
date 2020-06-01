@@ -757,18 +757,22 @@ TEST(PointCloud, EstimateNormals) {
             {1, 1, 0},
             {1, 1, 1},
     });
-
     pc.EstimateNormals(geometry::KDTreeSearchParamKNN(/*knn=*/4));
-    for (auto& normal : pc.normals_) {
-        utility::LogInfo("{}", normal);
-    }
     pc.NormalizeNormals();
-
-    // double v = 1.0 / std::sqrt(3.0);
-    // ExpectEQ(pc.normals_, std::vector<Eigen::Vector3d>(
-    //     {},
-    // ));
+    double v = 1.0 / std::sqrt(3.0);
+    ExpectEQ(pc.normals_, std::vector<Eigen::Vector3d>({
+                                  {v, v, v},
+                                  {-v, -v, v},
+                                  {v, -v, v},
+                                  {-v, v, v},
+                                  {-v, v, v},
+                                  {v, -v, v},
+                                  {-v, -v, v},
+                                  {v, v, v},
+                          }));
 }
+
+
 
 TEST(PointCloud, DISABLED_OrientNormalsToAlignWithDirection) {
     std::vector<Eigen::Vector3d> ref = {

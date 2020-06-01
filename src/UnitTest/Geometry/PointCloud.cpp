@@ -652,7 +652,6 @@ TEST(PointCloud, Crop_AxisAlignedBoundingBox) {
     geometry::AxisAlignedBoundingBox aabb({0, 0, 0}, {2, 2, 2});
     geometry::PointCloud pc({
             {0, 0, 0},
-            {0, 0, 2},
             {2, 2, 2},
             {1, 1, 1},
             {1, 1, 2},
@@ -666,7 +665,6 @@ TEST(PointCloud, Crop_AxisAlignedBoundingBox) {
             {3, 0, 0},
             {4, 0, 0},
             {5, 0, 0},
-            {6, 0, 0},
     });
     pc.colors_ = std::vector<Eigen::Vector3d>({
             {0.0, 0.0, 0.0},
@@ -675,13 +673,11 @@ TEST(PointCloud, Crop_AxisAlignedBoundingBox) {
             {0.3, 0.0, 0.0},
             {0.4, 0.0, 0.0},
             {0.5, 0.0, 0.0},
-            {0.6, 0.0, 0.0},
     });
 
     std::shared_ptr<geometry::PointCloud> pc_crop = pc.Crop(aabb);
     ExpectEQ(pc_crop->points_, std::vector<Eigen::Vector3d>({
                                        {0, 0, 0},
-                                       {0, 0, 2},
                                        {2, 2, 2},
                                        {1, 1, 1},
                                        {1, 1, 2},
@@ -691,14 +687,12 @@ TEST(PointCloud, Crop_AxisAlignedBoundingBox) {
                                         {1, 0, 0},
                                         {2, 0, 0},
                                         {3, 0, 0},
-                                        {4, 0, 0},
                                 }));
     ExpectEQ(pc_crop->colors_, std::vector<Eigen::Vector3d>({
                                        {0.0, 0.0, 0.0},
                                        {0.1, 0.0, 0.0},
                                        {0.2, 0.0, 0.0},
                                        {0.3, 0.0, 0.0},
-                                       {0.4, 0.0, 0.0},
                                }));
 }
 

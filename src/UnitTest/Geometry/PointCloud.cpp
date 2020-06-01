@@ -109,7 +109,7 @@ TEST(PointCloud, GetAxisAlignedBoundingBox) {
     geometry::PointCloud pc;
     geometry::AxisAlignedBoundingBox aabb;
 
-    pc = geometry::PointCloud(std::vector<Eigen::Vector3d>{});
+    pc = geometry::PointCloud();
     aabb = pc.GetAxisAlignedBoundingBox();
     EXPECT_EQ(aabb.min_bound_, Eigen::Vector3d(0, 0, 0));
     EXPECT_EQ(aabb.max_bound_, Eigen::Vector3d(0, 0, 0));
@@ -136,9 +136,55 @@ TEST(PointCloud, GetAxisAlignedBoundingBox) {
 
 TEST(PointCloud, GetOrientedBoundingBox) {
     geometry::PointCloud pc;
+    geometry::OrientedBoundingBox obb;
 
+    // Emtpy (GetOrientedBoundingBox requires >=4 points)
+    pc = geometry::PointCloud();
+    EXPECT_ANY_THROW(pc.GetOrientedBoundingBox());
+
+    // Point
     pc = geometry::PointCloud({{0, 0, 0}});
     EXPECT_ANY_THROW(pc.GetOrientedBoundingBox());
+    pc = geometry::PointCloud({{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}});
+    EXPECT_ANY_THROW(pc.GetOrientedBoundingBox());
+
+    // Line
+    pc = geometry::PointCloud({{0, 0, 0}, {1, 1, 1}});
+    EXPECT_ANY_THROW(pc.GetOrientedBoundingBox());
+    pc = geometry::PointCloud({{0, 0, 0}, {1, 1, 1}, {2, 2, 2}, {3, 3, 3}});
+    EXPECT_ANY_THROW(pc.GetOrientedBoundingBox());
+
+    // Plane
+    pc = geometry::PointCloud({{0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {0, 1, 1}});
+    EXPECT_ANY_THROW(pc.GetOrientedBoundingBox());
+
+    // Valid 4 points
+    pc = geometry::PointCloud({{0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {1, 1, 1}});
+    pc.GetOrientedBoundingBox();
+
+    // 8 points with known ground truth
+    pc = geometry::PointCloud({{0, 0, 0},
+                               {0, 0, 1},
+                               {0, 2, 0},
+                               {0, 2, 1},
+                               {3, 0, 0},
+                               {3, 0, 1},
+                               {3, 2, 0},
+                               {3, 2, 1}});
+    obb = pc.GetOrientedBoundingBox();
+    EXPECT_EQ(obb.center_, Eigen::Vector3d(1.5, 1, 0.5));
+    EXPECT_EQ(obb.extent_, Eigen::Vector3d(3, 2, 1));
+    EXPECT_EQ(obb.color_, Eigen::Vector3d(0, 0, 0));
+    EXPECT_EQ(obb.R_, Eigen::Matrix3d::Identity());
+    ExpectEQ(Sort(obb.GetBoxPoints()),
+             Sort(std::vector<Eigen::Vector3d>({{0, 0, 0},
+                                                {0, 0, 1},
+                                                {0, 2, 0},
+                                                {0, 2, 1},
+                                                {3, 0, 0},
+                                                {3, 0, 1},
+                                                {3, 2, 0},
+                                                {3, 2, 1}})));
 }
 
 TEST(PointCloud, Transform) {

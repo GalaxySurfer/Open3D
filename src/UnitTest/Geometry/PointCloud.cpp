@@ -132,11 +132,9 @@ TEST(PointCloud, GetAxisAlignedBoundingBox) {
 }
 
 TEST(PointCloud, GetOrientedBoundingBox) {
-    std::vector<Eigen::Vector3d> points = {
-            {0, 2, 0},
-            {1, 1, 2},
-            {1, 0, 3},
-    };
+    geometry::PointCloud pc;
+    pc = geometry::PointCloud({{0, 0, 0}, {1, 1, 1}});
+    EXPECT_ANY_THROW(pc.GetOrientedBoundingBox());
 }
 
 TEST(PointCloud, Transform) {

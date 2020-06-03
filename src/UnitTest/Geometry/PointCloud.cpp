@@ -438,15 +438,8 @@ TEST(PointCloud, HasColors) {
 
 TEST(PointCloud, NormalizeNormals) {
     geometry::PointCloud pc;
-    pc.normals_ = std::vector<Eigen::Vector3d>({
-            {2, 2, 2},
-            {1, 1, 1},
-            {-1, -1, -1},
-            {0, 0, 1},
-            {0, 1, 0},
-            {1, 0, 0},
-            {0, 0, 0},  // Normalize to (0, 0, 0)
-    });
+    pc.normals_ = {{2, 2, 2}, {1, 1, 1}, {-1, -1, -1}, {0, 0, 1},
+                   {0, 1, 0}, {1, 0, 0}, {0, 0, 0}};
     pc.NormalizeNormals();
     ExpectEQ(pc.normals_, std::vector<Eigen::Vector3d>({
                                   {0.57735, 0.57735, 0.57735},
@@ -650,30 +643,16 @@ TEST(PointCloud, UniformDownSample) {
 
 TEST(PointCloud, Crop_AxisAlignedBoundingBox) {
     geometry::AxisAlignedBoundingBox aabb({0, 0, 0}, {2, 2, 2});
-    geometry::PointCloud pc({
-            {0, 0, 0},
-            {2, 2, 2},
-            {1, 1, 1},
-            {1, 1, 2},
-            {3, 1, 1},
-            {-1, 1, 1},
-    });
-    pc.normals_ = std::vector<Eigen::Vector3d>({
-            {0, 0, 0},
-            {1, 0, 0},
-            {2, 0, 0},
-            {3, 0, 0},
-            {4, 0, 0},
-            {5, 0, 0},
-    });
-    pc.colors_ = std::vector<Eigen::Vector3d>({
-            {0.0, 0.0, 0.0},
-            {0.1, 0.0, 0.0},
-            {0.2, 0.0, 0.0},
-            {0.3, 0.0, 0.0},
-            {0.4, 0.0, 0.0},
-            {0.5, 0.0, 0.0},
-    });
+    geometry::PointCloud pc({{0, 0, 0},
+                             {2, 2, 2},
+                             {1, 1, 1},
+                             {1, 1, 2},
+                             {3, 1, 1},
+                             {-1, 1, 1}});
+    pc.normals_ = {{0, 0, 0}, {1, 0, 0}, {2, 0, 0},
+                   {3, 0, 0}, {4, 0, 0}, {5, 0, 0}};
+    pc.colors_ = {{0.0, 0.0, 0.0}, {0.1, 0.0, 0.0}, {0.2, 0.0, 0.0},
+                  {0.3, 0.0, 0.0}, {0.4, 0.0, 0.0}, {0.5, 0.0, 0.0}};
 
     std::shared_ptr<geometry::PointCloud> pc_crop = pc.Crop(aabb);
     ExpectEQ(pc_crop->points_, std::vector<Eigen::Vector3d>({
@@ -708,22 +687,10 @@ TEST(PointCloud, Crop_OrientedBoundingBox) {
             {3, 1, 1},
             {-1, 1, 1},
     });
-    pc.normals_ = std::vector<Eigen::Vector3d>({
-            {0, 0, 0},
-            {1, 0, 0},
-            {2, 0, 0},
-            {3, 0, 0},
-            {4, 0, 0},
-            {5, 0, 0},
-    });
-    pc.colors_ = std::vector<Eigen::Vector3d>({
-            {0.0, 0.0, 0.0},
-            {0.1, 0.0, 0.0},
-            {0.2, 0.0, 0.0},
-            {0.3, 0.0, 0.0},
-            {0.4, 0.0, 0.0},
-            {0.5, 0.0, 0.0},
-    });
+    pc.normals_ = {{0, 0, 0}, {1, 0, 0}, {2, 0, 0},
+                   {3, 0, 0}, {4, 0, 0}, {5, 0, 0}};
+    pc.colors_ = {{0.0, 0.0, 0.0}, {0.1, 0.0, 0.0}, {0.2, 0.0, 0.0},
+                  {0.3, 0.0, 0.0}, {0.4, 0.0, 0.0}, {0.5, 0.0, 0.0}};
 
     std::shared_ptr<geometry::PointCloud> pc_crop = pc.Crop(obb);
     ExpectEQ(pc_crop->points_, std::vector<Eigen::Vector3d>({
@@ -955,20 +922,46 @@ TEST(PointCloud, ComputeNearestNeighborDistance) {
     geometry::PointCloud pc;
 
     // Regular case
-    pc.points_ = std::vector<Eigen::Vector3d>(
-            {{0, 0, 0}, {0, 0, 0}, {1, 0, 0}, {1, 2, 0}});
+    pc.points_ = {{0, 0, 0}, {0, 0, 0}, {1, 0, 0}, {1, 2, 0}};
     ExpectEQ(pc.ComputeNearestNeighborDistance(),
              std::vector<double>({0, 0, 1, 2}));
 
     // < 2 points
-    pc.points_ = std::vector<Eigen::Vector3d>({});
+    pc.points_ = {};
     ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({}));
-    pc.points_ = std::vector<Eigen::Vector3d>({{10, 10, 10}});
+    pc.points_ = {{10, 10, 10}};
     ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({0}));
 
     // 2 points
-    pc.points_ = std::vector<Eigen::Vector3d>({{0, 0, 0}, {1, 0, 0}});
+    pc.points_ = {{0, 0, 0}, {1, 0, 0}};
     ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({1, 1}));
+}
+
+TEST(PointCloud, ComputeConvexHull) {
+    geometry::PointCloud pc;
+
+    // Needs at least 4 points
+    pc.points_ = {};
+    EXPECT_ANY_THROW(pc.ComputeConvexHull());
+    pc.points_ = {{0, 0, 0}, {0, 0, 1}, {0, 1, 0}};
+    EXPECT_ANY_THROW(pc.ComputeConvexHull());
+
+    // // Regular case
+    // pc.points_ = std::vector<Eigen::Vector3d>(
+    //         {{0, 0, 0}, {0, 0, 0}, {1, 0, 0}, {1, 2, 0}});
+    // ExpectEQ(pc.ComputeNearestNeighborDistance(),
+    //          std::vector<double>({0, 0, 1, 2}));
+
+    // // < 2 points
+    // pc.points_ = std::vector<Eigen::Vector3d>({});
+    // ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({}));
+    // pc.points_ = std::vector<Eigen::Vector3d>({{10, 10, 10}});
+    // ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({0}));
+
+    // // 2 points
+    // pc.points_ = std::vector<Eigen::Vector3d>({{0, 0, 0}, {1, 0, 0}});
+    // ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({1,
+    // 1}));
 }
 
 TEST(PointCloud, DISABLED_CreatePointCloudFromDepthImage) {

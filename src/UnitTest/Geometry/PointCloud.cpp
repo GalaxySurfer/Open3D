@@ -32,6 +32,7 @@
 #include "Open3D/Geometry/PointCloud.h"
 #include "Open3D/Geometry/RGBDImage.h"
 #include "Open3D/Geometry/TriangleMesh.h"
+#include "Open3D/IO/ClassIO/ImageIO.h"
 #include "Open3D/IO/ClassIO/PointCloudIO.h"
 #include "UnitTest/UnitTest.h"
 
@@ -1024,6 +1025,21 @@ TEST(PointCloud, SegmentPlane) {
     ExpectEQ(plane_model, Eigen::Vector4d(-0.06, -0.10, 0.99, -1.06), 0.1);
 }
 
+TEST(PointCloud, SegmentPlaneKnownPlane) {
+    // Points sampled from the plane x + y + z + 1 = 0
+    std::vector<Eigen::Vector3d> ref = {{1.0, 1.0, -3.0},
+                                        {2.0, 2.0, -5.0},
+                                        {-1.0, -1.0, 1.0},
+                                        {-2.0, -2.0, 3.0},
+                                        {10.0, 10.0, -21.0}};
+    geometry::PointCloud pc(ref);
+
+    Eigen::Vector4d plane_model;
+    std::vector<size_t> inliers;
+    std::tie(plane_model, inliers) = pc.SegmentPlane(0.01, 3, 10);
+    ExpectEQ(pc.SelectByIndex(inliers)->points_, ref);
+}
+
 TEST(PointCloud, DISABLED_CreatePointCloudFromDepthImage) {
     std::vector<Eigen::Vector3d> ref = {{-15.709662, -11.776101, 25.813999},
                                         {-31.647980, -23.798088, 52.167000},
@@ -1215,28 +1231,6 @@ TEST(PointCloud, DISABLED_CreatePointCloudFromRGBDImage_1_4) {
     TEST_CreatePointCloudFromRGBDImage(color_num_of_channels,
                                        color_bytes_per_channel, ref_points,
                                        ref_colors);
-}
-
-TEST(PointCloud, DISABLED_SegmentPlane) {
-    // Points sampled from the plane x + y + z + 1 = 0
-    std::vector<Eigen::Vector3d> ref = {{1.0, 1.0, -3.0},
-                                        {2.0, 2.0, -5.0},
-                                        {-1.0, -1.0, 1.0},
-                                        {-2.0, -2.0, 3.0},
-                                        {10.0, 10.0, -21.0}};
-
-    geometry::PointCloud pc;
-
-    for (size_t i = 0; i < ref.size(); i++) {
-        pc.points_.emplace_back(ref[i]);
-    }
-
-    Eigen::Vector4d plane_model;
-    std::vector<size_t> inliers;
-    std::tie(plane_model, inliers) = pc.SegmentPlane(0.01, 3, 10);
-    auto output_pc = pc.SelectByIndex(inliers);
-
-    ExpectEQ(ref, output_pc->points_);
 }
 
 }  // namespace unit_test

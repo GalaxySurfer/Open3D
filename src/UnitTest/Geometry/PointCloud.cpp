@@ -770,7 +770,7 @@ TEST(PointCloud, EstimateNormals) {
                                                         {v, v, v}}));
 }
 
-TEST(PointCloud, OrientNormalsConsistentTangentPlane) {
+TEST(PointCloud, OrientNormalsToAlignWithDirection) {
     geometry::PointCloud pc({
             {0, 0, 0},
             {0, 0, 1},
@@ -781,16 +781,35 @@ TEST(PointCloud, OrientNormalsConsistentTangentPlane) {
             {1, 1, 0},
             {1, 1, 1},
     });
+    pc.EstimateNormals(geometry::KDTreeSearchParamKNN(/*knn=*/4));
+    pc.NormalizeNormals();
+    double v = 1.0 / std::sqrt(3.0);
+
+    pc.OrientNormalsToAlignWithDirection(Eigen::Vector3d{0, 0, -1});
+    ExpectEQ(pc.normals_, std::vector<Eigen::Vector3d>({{-v, -v, -v},
+                                                        {v, v, -v},
+                                                        {-v, v, -v},
+                                                        {v, -v, -v},
+                                                        {v, -v, -v},
+                                                        {-v, v, -v},
+                                                        {v, v, -v},
+                                                        {-v, -v, -v}}));
+}
+
+TEST(PointCloud, OrientNormalsConsistentTangentPlane) {
+    geometry::PointCloud pc({
+            {0, 0, 0},
+            {0, 0, 1},
+            {0, 1, 0},
+            {0, 1, 1},
+            {1, 0, 0},
+            {1, 0, 1},
+            {1, 1, 0},
+            {1, 1, 1.125},  // Avoids cospherical points
+    });
     size_t k = 4;
     pc.EstimateNormals(geometry::KDTreeSearchParamKNN(k));
     pc.NormalizeNormals();
-
-    std::vector<Eigen::Vector3d> reversed_normals;
-    for (const auto& normal : pc.normals_) {
-        reversed_normals.push_back(-normal);
-    }
-    pc.OrientNormalsConsistentTangentPlane(k);
-    ExpectEQ(pc.normals_, reversed_normals);
 }
 
 TEST(PointCloud, DISABLED_OrientNormalsToAlignWithDirection) {

@@ -31,6 +31,7 @@
 #include "Open3D/Geometry/Image.h"
 #include "Open3D/Geometry/PointCloud.h"
 #include "Open3D/Geometry/RGBDImage.h"
+#include "Open3D/Geometry/TriangleMesh.h"
 #include "UnitTest/UnitTest.h"
 
 namespace open3d {
@@ -939,12 +940,24 @@ TEST(PointCloud, ComputeNearestNeighborDistance) {
 
 TEST(PointCloud, ComputeConvexHull) {
     geometry::PointCloud pc;
+    std::shared_ptr<geometry::TriangleMesh> mesh;
+    std::vector<size_t> pt_map;
 
     // Needs at least 4 points
     pc.points_ = {};
     EXPECT_ANY_THROW(pc.ComputeConvexHull());
+    pc.points_ = {{0, 0, 0}};
+    EXPECT_ANY_THROW(pc.ComputeConvexHull());
+    pc.points_ = {{0, 0, 0}, {0, 0, 1}};
+    EXPECT_ANY_THROW(pc.ComputeConvexHull());
     pc.points_ = {{0, 0, 0}, {0, 0, 1}, {0, 1, 0}};
     EXPECT_ANY_THROW(pc.ComputeConvexHull());
+
+    // Coplanar
+    pc.points_ = {{0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {1, 0, 0}};
+    std::tie(mesh, pt_map) = pc.ComputeConvexHull();
+    EXPECT_EQ(pt_map, std::vector<size_t>({2, 3, 0, 1}));
+    ExpectEQ(mesh->vertices_, ApplyIndices(pc.points_, pt_map));
 
     // // Regular case
     // pc.points_ = std::vector<Eigen::Vector3d>(

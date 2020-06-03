@@ -984,14 +984,16 @@ TEST(PointCloud, HiddenPointRemoval) {
     geometry::PointCloud pc;
     io::ReadPointCloud(std::string(TEST_DATA_DIR) + "/fragment.ply", pc);
     EXPECT_EQ(pc.points_.size(), 196133);
+    EXPECT_EQ(pc.GetMaxBound(), Eigen::Vector3d(3.96609, 2.42748, 2.55859));
+    EXPECT_EQ(pc.GetMinBound(), Eigen::Vector3d(0.558594, 0.832031, 0.566637));
 
     // Hard-coded test
     std::shared_ptr<geometry::TriangleMesh> mesh;
     std::vector<size_t> pt_map;
     std::tie(mesh, pt_map) =
-            pc.HiddenPointRemoval(Eigen::Vector3d{5, 5, 5}, 0.01);
+            pc.HiddenPointRemoval(Eigen::Vector3d{0, 0, 5}, 5 * 100);
     ExpectEQ(mesh->vertices_, ApplyIndices(pc.points_, pt_map));
-    EXPECT_EQ(mesh->vertices_.size(), 84);
+    EXPECT_EQ(mesh->vertices_.size(), 24581);
 }
 
 TEST(PointCloud, DISABLED_CreatePointCloudFromDepthImage) {

@@ -1010,6 +1010,20 @@ TEST(PointCloud, ClusterDBSCAN) {
     EXPECT_EQ(cluster_sum, 398580);
 }
 
+TEST(PointCloud, SegmentPlane) {
+    geometry::PointCloud pc;
+    io::ReadPointCloud(std::string(TEST_DATA_DIR) + "/fragment.pcd", pc);
+    EXPECT_EQ(pc.points_.size(), 113662);
+
+    // Hard-coded test
+    Eigen::Vector4d plane_model;
+    std::vector<size_t> inliers;
+    std::tie(plane_model, inliers) = pc.SegmentPlane(0.01, 3, 1000);
+
+    // TODO: seed the ransac
+    ExpectEQ(plane_model, Eigen::Vector4d(-0.06, -0.10, 0.99, -1.06), 0.1);
+}
+
 TEST(PointCloud, DISABLED_CreatePointCloudFromDepthImage) {
     std::vector<Eigen::Vector3d> ref = {{-15.709662, -11.776101, 25.813999},
                                         {-31.647980, -23.798088, 52.167000},

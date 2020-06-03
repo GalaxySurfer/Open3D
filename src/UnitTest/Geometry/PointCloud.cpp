@@ -953,28 +953,30 @@ TEST(PointCloud, ComputeConvexHull) {
     pc.points_ = {{0, 0, 0}, {0, 0, 1}, {0, 1, 0}};
     EXPECT_ANY_THROW(pc.ComputeConvexHull());
 
-    // Coplanar
+    // Hard-coded test
     pc.points_ = {{0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {1, 0, 0}};
     std::tie(mesh, pt_map) = pc.ComputeConvexHull();
     EXPECT_EQ(pt_map, std::vector<size_t>({2, 3, 0, 1}));
     ExpectEQ(mesh->vertices_, ApplyIndices(pc.points_, pt_map));
 
-    // // Regular case
-    // pc.points_ = std::vector<Eigen::Vector3d>(
-    //         {{0, 0, 0}, {0, 0, 0}, {1, 0, 0}, {1, 2, 0}});
-    // ExpectEQ(pc.ComputeNearestNeighborDistance(),
-    //          std::vector<double>({0, 0, 1, 2}));
-
-    // // < 2 points
-    // pc.points_ = std::vector<Eigen::Vector3d>({});
-    // ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({}));
-    // pc.points_ = std::vector<Eigen::Vector3d>({{10, 10, 10}});
-    // ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({0}));
-
-    // // 2 points
-    // pc.points_ = std::vector<Eigen::Vector3d>({{0, 0, 0}, {1, 0, 0}});
-    // ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({1,
-    // 1}));
+    // Hard-coded test
+    pc.points_ = {{0.5, 0.5, 0.5}, {0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {0, 1, 1},
+                  {1, 0, 0},       {1, 0, 1}, {1, 1, 0}, {1, 1, 1}};
+    std::tie(mesh, pt_map) = pc.ComputeConvexHull();
+    EXPECT_EQ(pt_map, std::vector<size_t>({7, 3, 1, 5, 6, 2, 8, 4}));
+    ExpectEQ(mesh->vertices_, ApplyIndices(pc.points_, pt_map));
+    ExpectEQ(mesh->triangles_, std::vector<Eigen::Vector3i>({{0, 1, 2},
+                                                             {0, 3, 2},
+                                                             {4, 3, 2},
+                                                             {4, 5, 2},
+                                                             {4, 0, 3},
+                                                             {4, 0, 6},
+                                                             {7, 1, 2},
+                                                             {7, 5, 2},
+                                                             {7, 0, 1},
+                                                             {7, 0, 6},
+                                                             {7, 4, 5},
+                                                             {7, 4, 6}}));
 }
 
 TEST(PointCloud, DISABLED_CreatePointCloudFromDepthImage) {

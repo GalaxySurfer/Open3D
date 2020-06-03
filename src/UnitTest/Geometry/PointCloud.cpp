@@ -793,6 +793,36 @@ TEST(PointCloud, OrientNormalsToAlignWithDirection) {
                                                         {-v, v, -v},
                                                         {v, v, -v},
                                                         {-v, -v, -v}}));
+
+    // normal.norm() == 0 case
+    pc.points_ = std::vector<Eigen::Vector3d>{{10, 10, 10}};
+    pc.normals_ = std::vector<Eigen::Vector3d>{{0, 0, 0}};
+    pc.OrientNormalsToAlignWithDirection(Eigen::Vector3d{0, 0, -1});
+    pc.normals_ = std::vector<Eigen::Vector3d>{{0, 0, -1}};
+}
+
+TEST(PointCloud, OrientNormalsTowardsCameraLocation) {
+    geometry::PointCloud pc({
+            {0, 0, 0},
+            {0, 1, 0},
+            {1, 0, 0},
+            {1, 1, 0},
+    });
+    pc.EstimateNormals(geometry::KDTreeSearchParamKNN(/*knn=*/4));
+    pc.NormalizeNormals();
+    std::vector<Eigen::Vector3d> ref_normals(
+            {{0, 0, 1}, {0, 0, 1}, {0, 0, 1}, {0, 0, 1}});
+    std::vector<Eigen::Vector3d> ref_normals_rev(
+            {{0, 0, -1}, {0, 0, -1}, {0, 0, -1}, {0, 0, -1}});
+
+    // Initial
+    ExpectEQ(pc.normals_, ref_normals);
+    // Camera outside
+    pc.OrientNormalsTowardsCameraLocation(Eigen::Vector3d{2, 3, 4});
+    ExpectEQ(pc.normals_, ref_normals);
+    // Camera inside
+    pc.OrientNormalsTowardsCameraLocation(Eigen::Vector3d{-2, -3, -4});
+    ExpectEQ(pc.normals_, ref_normals_rev);
 }
 
 TEST(PointCloud, OrientNormalsConsistentTangentPlane) {

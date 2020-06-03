@@ -875,38 +875,13 @@ TEST(PointCloud, OrientNormalsConsistentTangentPlane) {
                                                         {1, 0, 0}}));
 }
 
-TEST(PointCloud, DISABLED_ComputePointCloudToPointCloudDistance) {
-    std::vector<double> ref = {
-            157.498711, 127.737235, 113.386920, 192.476725, 134.367386,
-            119.720294, 104.713960, 228.597516, 131.299365, 174.718976,
-            248.300645, 119.976930, 23.200313,  71.130812,  134.995408,
-            149.534713, 206.804657, 191.395049, 139.532917, 130.417954,
-            183.393615, 219.957705, 179.623255, 125.612685, 29.865777,
-            110.013805, 100.287936, 303.180627, 43.315141,  227.214211,
-            166.239360, 199.730691, 168.855295, 178.377497, 144.034256,
-            261.542463, 122.388130, 239.857705, 116.398605, 177.686443,
-            92.966820,  96.138437,  23.529412,  177.902686, 68.149597,
-            148.191715, 158.520650, 346.210329, 248.114768, 182.342399};
+TEST(PointCloud, ComputePointCloudToPointCloudDistance) {
+    geometry::PointCloud pc0({{0, 0, 0}, {1, 2, 0}, {2, 2, 0}});
+    geometry::PointCloud pc1({{-1, 0, 0}, {-2, 0, 0}, {-1, 2, 0}});
 
-    int size = 100;
-
-    geometry::PointCloud pc0;
-    geometry::PointCloud pc1;
-
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
-
-    std::vector<Eigen::Vector3d> points(size);
-    Rand(points, vmin, vmax, 0);
-
-    for (int i = 0; i < (size / 2); i++) {
-        pc0.points_.push_back(points[0 + i]);
-        pc1.points_.push_back(points[(size / 2) + i]);
-    }
-
-    std::vector<double> distance = pc0.ComputePointCloudDistance(pc1);
-
-    ExpectEQ(ref, distance);
+    pc0.ComputePointCloudDistance(pc1);
+    ExpectEQ(pc0.ComputePointCloudDistance(pc1),
+             std::vector<double>({1, 2, 3}));
 }
 
 TEST(PointCloud, DISABLED_ComputePointCloudMeanAndCovariance) {

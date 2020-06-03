@@ -784,7 +784,6 @@ TEST(PointCloud, OrientNormalsToAlignWithDirection) {
     pc.EstimateNormals(geometry::KDTreeSearchParamKNN(/*knn=*/4));
     pc.NormalizeNormals();
     double v = 1.0 / std::sqrt(3.0);
-
     pc.OrientNormalsToAlignWithDirection(Eigen::Vector3d{0, 0, -1});
     ExpectEQ(pc.normals_, std::vector<Eigen::Vector3d>({{-v, -v, -v},
                                                         {v, v, -v},

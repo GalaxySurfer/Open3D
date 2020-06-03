@@ -996,6 +996,20 @@ TEST(PointCloud, HiddenPointRemoval) {
     EXPECT_EQ(mesh->vertices_.size(), 24581);
 }
 
+TEST(PointCloud, ClusterDBSCAN) {
+    geometry::PointCloud pc;
+    io::ReadPointCloud(std::string(TEST_DATA_DIR) + "/fragment.ply", pc);
+    EXPECT_EQ(pc.points_.size(), 196133);
+
+    // Hard-coded test
+    std::vector<int> cluster = pc.ClusterDBSCAN(0.02, 10, false);
+    EXPECT_EQ(cluster.size(), 196133);
+    std::unordered_set<int> cluster_set(cluster.begin(), cluster.end());
+    EXPECT_EQ(cluster_set.size(), 11);
+    int cluster_sum = std::accumulate(cluster.begin(), cluster.end(), 0);
+    EXPECT_EQ(cluster_sum, 398580);
+}
+
 TEST(PointCloud, DISABLED_CreatePointCloudFromDepthImage) {
     std::vector<Eigen::Vector3d> ref = {{-15.709662, -11.776101, 25.813999},
                                         {-31.647980, -23.798088, 52.167000},

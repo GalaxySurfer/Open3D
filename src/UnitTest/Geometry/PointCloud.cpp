@@ -32,6 +32,7 @@
 #include "Open3D/Geometry/PointCloud.h"
 #include "Open3D/Geometry/RGBDImage.h"
 #include "Open3D/Geometry/TriangleMesh.h"
+#include "Open3D/IO/ClassIO/PointCloudIO.h"
 #include "UnitTest/UnitTest.h"
 
 namespace open3d {
@@ -977,6 +978,20 @@ TEST(PointCloud, ComputeConvexHull) {
                                                              {7, 0, 6},
                                                              {7, 4, 5},
                                                              {7, 4, 6}}));
+}
+
+TEST(PointCloud, HiddenPointRemoval) {
+    geometry::PointCloud pc;
+    io::ReadPointCloud(std::string(TEST_DATA_DIR) + "/fragment.ply", pc);
+    EXPECT_EQ(pc.points_.size(), 196133);
+
+    // Hard-coded test
+    std::shared_ptr<geometry::TriangleMesh> mesh;
+    std::vector<size_t> pt_map;
+    std::tie(mesh, pt_map) =
+            pc.HiddenPointRemoval(Eigen::Vector3d{5, 5, 5}, 0.01);
+    ExpectEQ(mesh->vertices_, ApplyIndices(pc.points_, pt_map));
+    EXPECT_EQ(mesh->vertices_.size(), 84);
 }
 
 TEST(PointCloud, DISABLED_CreatePointCloudFromDepthImage) {

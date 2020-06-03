@@ -589,6 +589,10 @@ std::vector<double> PointCloud::ComputeMahalanobisDistance() const {
 }
 
 std::vector<double> PointCloud::ComputeNearestNeighborDistance() const {
+    if (points_.size() < 2) {
+        return std::vector<double>(points_.size(), 0);
+    }
+
     std::vector<double> nn_dis(points_.size());
     KDTreeFlann kdtree(*this);
 #ifdef _OPENMP

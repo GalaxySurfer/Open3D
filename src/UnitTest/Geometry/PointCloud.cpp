@@ -895,11 +895,30 @@ TEST(PointCloud, ComputeMeanAndCovariance) {
             {1, 1, 0},
             {1, 1, 1},
     });
+
     Eigen::Vector3d ref_mean(0.5, 0.5, 0.5);
     Eigen::Matrix3d ref_covariance;
     ref_covariance << 0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25;
-    ExpectEQ(std::get<0>(pc.ComputeMeanAndCovariance()), ref_mean);
-    ExpectEQ(std::get<1>(pc.ComputeMeanAndCovariance()), ref_covariance);
+
+    Eigen::Vector3d mean;
+    Eigen::Matrix3d covariance;
+    std::tie(mean, covariance) = pc.ComputeMeanAndCovariance();
+    ExpectEQ(mean, ref_mean);
+    ExpectEQ(covariance, ref_covariance);
+
+    pc.points_ = {};
+    ref_mean = Eigen::Vector3d::Zero();
+    ref_covariance = Eigen::Matrix3d::Identity();
+    std::tie(mean, covariance) = pc.ComputeMeanAndCovariance();
+    ExpectEQ(mean, ref_mean);
+    ExpectEQ(covariance, ref_covariance);
+
+    pc.points_ = {{1, 1, 1}};
+    ref_mean = Eigen::Vector3d({1, 1, 1});
+    ref_covariance = Eigen::Matrix3d::Zero();
+    std::tie(mean, covariance) = pc.ComputeMeanAndCovariance();
+    ExpectEQ(mean, ref_mean);
+    ExpectEQ(covariance, ref_covariance);
 }
 
 TEST(PointCloud, ComputeMahalanobisDistance) {
@@ -914,44 +933,42 @@ TEST(PointCloud, ComputeMahalanobisDistance) {
     ExpectEQ(distance,
              std::vector<double>({1.77951, 0.81650, 2.00000, 1.77951, 2.00000}),
              1e-4);
+
+    // Empty
+    pc.points_ = {};
+    distance = pc.ComputeMahalanobisDistance();
+    ExpectEQ(distance, std::vector<double>({}));
+
+    // Nan if the covariance is not inversable
+    pc.points_ = {{1, 1, 1}};
+    distance = pc.ComputeMahalanobisDistance();
+    EXPECT_EQ(distance.size(), 1);
+    EXPECT_TRUE(std::isnan(distance[0]));
+
+    pc.points_ = {{0, 0, 0}, {1, 1, 1}};
+    distance = pc.ComputeMahalanobisDistance();
+    EXPECT_EQ(distance.size(), 2);
+    EXPECT_TRUE(std::isnan(distance[0]) && std::isnan(distance[1]));
 }
 
-TEST(PointCloud, DISABLED_ComputePointCloudNearestNeighborDistance) {
-    std::vector<double> ref = {
-            115.403443, 127.737235, 113.386920, 160.257386, 134.367386,
-            84.927090,  104.713960, 125.367587, 131.299365, 174.718976,
-            135.903713, 119.976930, 23.200313,  71.130812,  122.388130,
-            149.534713, 206.804657, 167.712979, 139.532917, 130.417954,
-            183.393615, 177.513260, 145.151024, 125.612685, 29.865777,
-            104.860721, 80.940264,  216.433643, 43.315141,  115.403443,
-            84.927090,  149.637522, 135.903713, 174.101748, 144.034256,
-            241.072830, 112.365088, 161.880529, 116.398605, 177.686443,
-            92.966820,  96.138437,  23.529412,  161.880529, 68.149597,
-            148.191715, 150.610701, 235.849019, 125.367587, 182.342399,
-            103.829038, 104.713960, 92.966820,  71.130812,  171.251808,
-            156.960754, 285.736804, 171.251808, 68.149597,  118.493686,
-            119.976930, 99.903837,  100.823217, 188.316976, 110.223289,
-            91.968936,  137.030629, 91.968936,  126.588332, 127.737235,
-            36.787575,  131.123557, 177.902686, 36.787575,  23.200313,
-            99.903837,  134.367386, 177.686443, 154.392311, 122.388130,
-            192.476725, 113.386920, 183.686877, 197.990675, 192.356839,
-            83.465869,  148.191715, 96.218385,  147.254771, 114.265116,
-            116.398605, 83.465869,  123.576088, 156.960754, 43.315141,
-            29.865777,  110.223289, 23.529412,  162.070418, 179.623255};
-
-    int size = 100;
-
+TEST(PointCloud, ComputeNearestNeighborDistance) {
     geometry::PointCloud pc;
 
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
+    // Regular case
+    pc.points_ = std::vector<Eigen::Vector3d>(
+            {{0, 0, 0}, {0, 0, 0}, {1, 0, 0}, {1, 2, 0}});
+    ExpectEQ(pc.ComputeNearestNeighborDistance(),
+             std::vector<double>({0, 0, 1, 2}));
 
-    pc.points_.resize(size);
-    Rand(pc.points_, vmin, vmax, 0);
+    // < 2 points
+    pc.points_ = std::vector<Eigen::Vector3d>({});
+    ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({}));
+    pc.points_ = std::vector<Eigen::Vector3d>({{10, 10, 10}});
+    ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({0}));
 
-    std::vector<double> distance = pc.ComputeNearestNeighborDistance();
-
-    ExpectEQ(ref, distance);
+    // 2 points
+    pc.points_ = std::vector<Eigen::Vector3d>({{0, 0, 0}, {1, 0, 0}});
+    ExpectEQ(pc.ComputeNearestNeighborDistance(), std::vector<double>({1, 1}));
 }
 
 TEST(PointCloud, DISABLED_CreatePointCloudFromDepthImage) {

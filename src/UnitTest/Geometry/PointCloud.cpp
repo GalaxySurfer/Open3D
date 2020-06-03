@@ -884,29 +884,22 @@ TEST(PointCloud, ComputePointCloudToPointCloudDistance) {
              std::vector<double>({1, 2, 3}));
 }
 
-TEST(PointCloud, DISABLED_ComputePointCloudMeanAndCovariance) {
-    int size = 40;
-    geometry::PointCloud pc;
-
-    Eigen::Vector3d vmin(0.0, 0.0, 0.0);
-    Eigen::Vector3d vmax(1000.0, 1000.0, 1000.0);
-
-    pc.points_.resize(size);
-    Rand(pc.points_, vmin, vmax, 0);
-
-    auto output = pc.ComputeMeanAndCovariance();
-
-    Eigen::Vector3d mean = std::get<0>(output);
-    Eigen::Matrix3d covariance = std::get<1>(output);
-
-    ExpectEQ(Eigen::Vector3d(514.215686, 566.666666, 526.568627), mean);
-
+TEST(PointCloud, ComputeMeanAndCovariance) {
+    geometry::PointCloud pc({
+            {0, 0, 0},
+            {0, 0, 1},
+            {0, 1, 0},
+            {0, 1, 1},
+            {1, 0, 0},
+            {1, 0, 1},
+            {1, 1, 0},
+            {1, 1, 1},
+    });
+    Eigen::Vector3d ref_mean(0.5, 0.5, 0.5);
     Eigen::Matrix3d ref_covariance;
-    ref_covariance << 86747.549019, -9480.776624, 1416.234140, -9480.776624,
-            64536.716647, -12861.399461, 1416.234140, -12861.399461,
-            85923.096885;
-
-    ExpectEQ(ref_covariance, covariance);
+    ref_covariance << 0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25;
+    ExpectEQ(std::get<0>(pc.ComputeMeanAndCovariance()), ref_mean);
+    ExpectEQ(std::get<1>(pc.ComputeMeanAndCovariance()), ref_covariance);
 }
 
 TEST(PointCloud, DISABLED_ComputePointCloudMahalanobisDistance) {

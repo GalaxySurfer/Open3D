@@ -1043,162 +1043,47 @@ TEST(PointCloud, SegmentPlaneKnownPlane) {
 }
 
 TEST(PointCloud, CreateFromDepthImage) {
+    const std::string trajectory_path =
+            std::string(TEST_DATA_DIR) + "/RGBD/trajectory.log";
+    const std::string im_depth_path =
+            std::string(TEST_DATA_DIR) + "/RGBD/depth/00000.png";
+
     camera::PinholeCameraTrajectory trajectory;
-    io::ReadPinholeCameraTrajectory(
-            std::string(TEST_DATA_DIR) + "/RGBD/trajectory.log", trajectory);
+    io::ReadPinholeCameraTrajectory(trajectory_path, trajectory);
     camera::PinholeCameraIntrinsic intrinsic =
             trajectory.parameters_[0].intrinsic_;
     Eigen::Matrix4d extrinsic = trajectory.parameters_[0].extrinsic_;
-    std::shared_ptr<geometry::Image> im_depth = io::CreateImageFromFile(
-            std::string(TEST_DATA_DIR) + "/RGBD/depth/00000.png");
+    std::shared_ptr<geometry::Image> im_depth =
+            io::CreateImageFromFile(im_depth_path);
 
     std::shared_ptr<geometry::PointCloud> pc =
             geometry::PointCloud::CreateFromDepthImage(*im_depth, intrinsic,
                                                        extrinsic);
 }
 
-// ----------------------------------------------------------------------------
-// Test CreatePointCloudFromRGBDImage for the following configurations:
-// index | color_num_of_channels | color_bytes_per_channel
-//     1 |          3            |            1
-//     0 |          1            |            4
-// ----------------------------------------------------------------------------
-void TEST_CreatePointCloudFromRGBDImage(
-        const int& color_num_of_channels,
-        const int& color_bytes_per_channel,
-        const std::vector<Eigen::Vector3d>& ref_points,
-        const std::vector<Eigen::Vector3d>& ref_colors) {
-    geometry::Image image;
-    geometry::Image color;
+TEST(PointCloud, CreateFromRGBDImage) {
+    const std::string trajectory_path =
+            std::string(TEST_DATA_DIR) + "/RGBD/trajectory.log";
+    const std::string im_depth_path =
+            std::string(TEST_DATA_DIR) + "/RGBD/depth/00000.png";
+    const std::string im_rgb_path =
+            std::string(TEST_DATA_DIR) + "/RGBD/color/00000.png";
 
-    int size = 5;
+    camera::PinholeCameraTrajectory trajectory;
+    io::ReadPinholeCameraTrajectory(trajectory_path, trajectory);
+    camera::PinholeCameraIntrinsic intrinsic =
+            trajectory.parameters_[0].intrinsic_;
+    Eigen::Matrix4d extrinsic = trajectory.parameters_[0].extrinsic_;
 
-    // test image dimensions
-    int width = size;
-    int height = size;
-    int num_of_channels = 1;
-    int bytes_per_channel = 1;
+    std::shared_ptr<geometry::Image> im_depth =
+            io::CreateImageFromFile(im_depth_path);
+    std::shared_ptr<geometry::Image> im_rgb =
+            io::CreateImageFromFile(im_rgb_path);
+    geometry::RGBDImage im_rgbd(*im_rgb, *im_depth);
 
-    image.Prepare(width, height, num_of_channels, bytes_per_channel);
-
-    color.Prepare(width, height, color_num_of_channels,
-                  color_bytes_per_channel);
-
-    Rand(image.data_, 100, 150, 0);
-    Rand(color.data_, 130, 200, 0);
-
-    auto depth = image.ConvertDepthToFloatImage();
-
-    geometry::RGBDImage rgbd_image(color, *depth);
-
-    camera::PinholeCameraIntrinsic intrinsic = camera::PinholeCameraIntrinsic(
-            camera::PinholeCameraIntrinsicParameters::PrimeSenseDefault);
-
-    auto output_pc =
-            geometry::PointCloud::CreateFromRGBDImage(rgbd_image, intrinsic);
-
-    ExpectEQ(ref_points, output_pc->points_);
-    ExpectEQ(ref_colors, output_pc->colors_);
-}
-
-// ----------------------------------------------------------------------------
-// Test CreatePointCloudFromRGBDImage for the following configuration:
-// color_num_of_channels = 3
-// color_bytes_per_channel = 1
-// ----------------------------------------------------------------------------
-TEST(PointCloud, DISABLED_CreatePointCloudFromRGBDImage_3_1) {
-    std::vector<Eigen::Vector3d> ref_points = {
-            {-0.000337, -0.000252, 0.000553}, {-0.000283, -0.000213, 0.000467},
-            {-0.000330, -0.000249, 0.000545}, {-0.000329, -0.000249, 0.000545},
-            {-0.000342, -0.000259, 0.000569}, {-0.000260, -0.000194, 0.000427},
-            {-0.000276, -0.000207, 0.000455}, {-0.000327, -0.000246, 0.000541},
-            {-0.000267, -0.000201, 0.000443}, {-0.000299, -0.000226, 0.000498},
-            {-0.000294, -0.000218, 0.000482}, {-0.000312, -0.000232, 0.000514},
-            {-0.000280, -0.000209, 0.000463}, {-0.000296, -0.000222, 0.000490},
-            {-0.000346, -0.000261, 0.000576}, {-0.000346, -0.000256, 0.000569},
-            {-0.000312, -0.000231, 0.000514}, {-0.000320, -0.000238, 0.000529},
-            {-0.000253, -0.000189, 0.000420}, {-0.000306, -0.000230, 0.000510},
-            {-0.000239, -0.000176, 0.000392}, {-0.000264, -0.000195, 0.000435},
-            {-0.000251, -0.000186, 0.000416}, {-0.000331, -0.000246, 0.000549},
-            {-0.000252, -0.000188, 0.000420}};
-
-    std::vector<Eigen::Vector3d> ref_colors = {
-            {0.737255, 0.615686, 0.721569}, {0.725490, 0.756863, 0.560784},
-            {0.600000, 0.717647, 0.584314}, {0.658824, 0.639216, 0.678431},
-            {0.607843, 0.647059, 0.768627}, {0.756863, 0.682353, 0.701961},
-            {0.545098, 0.674510, 0.513725}, {0.572549, 0.545098, 0.729412},
-            {0.549020, 0.619608, 0.545098}, {0.537255, 0.780392, 0.568627},
-            {0.647059, 0.737255, 0.674510}, {0.588235, 0.682353, 0.650980},
-            {0.643137, 0.776471, 0.588235}, {0.717647, 0.650980, 0.717647},
-            {0.619608, 0.752941, 0.584314}, {0.603922, 0.729412, 0.760784},
-            {0.525490, 0.768627, 0.650980}, {0.529412, 0.560784, 0.690196},
-            {0.752941, 0.603922, 0.525490}, {0.513725, 0.631373, 0.525490},
-            {0.572549, 0.772549, 0.756863}, {0.741176, 0.580392, 0.654902},
-            {0.611765, 0.713725, 0.647059}, {0.690196, 0.654902, 0.517647},
-            {0.627451, 0.764706, 0.764706}};
-
-    int color_num_of_channels = 3;
-    int color_bytes_per_channel = 1;
-
-    TEST_CreatePointCloudFromRGBDImage(color_num_of_channels,
-                                       color_bytes_per_channel, ref_points,
-                                       ref_colors);
-}
-
-// ----------------------------------------------------------------------------
-// Test CreatePointCloudFromRGBDImage for the following configuration:
-// color_num_of_channels = 1
-// color_bytes_per_channel = 4
-// ----------------------------------------------------------------------------
-TEST(PointCloud, DISABLED_CreatePointCloudFromRGBDImage_1_4) {
-    std::vector<Eigen::Vector3d> ref_points = {
-            {-0.000337, -0.000252, 0.000553}, {-0.000283, -0.000213, 0.000467},
-            {-0.000330, -0.000249, 0.000545}, {-0.000329, -0.000249, 0.000545},
-            {-0.000342, -0.000259, 0.000569}, {-0.000260, -0.000194, 0.000427},
-            {-0.000276, -0.000207, 0.000455}, {-0.000327, -0.000246, 0.000541},
-            {-0.000267, -0.000201, 0.000443}, {-0.000299, -0.000226, 0.000498},
-            {-0.000294, -0.000218, 0.000482}, {-0.000312, -0.000232, 0.000514},
-            {-0.000280, -0.000209, 0.000463}, {-0.000296, -0.000222, 0.000490},
-            {-0.000346, -0.000261, 0.000576}, {-0.000346, -0.000256, 0.000569},
-            {-0.000312, -0.000231, 0.000514}, {-0.000320, -0.000238, 0.000529},
-            {-0.000253, -0.000189, 0.000420}, {-0.000306, -0.000230, 0.000510},
-            {-0.000239, -0.000176, 0.000392}, {-0.000264, -0.000195, 0.000435},
-            {-0.000251, -0.000186, 0.000416}, {-0.000331, -0.000246, 0.000549},
-            {-0.000252, -0.000188, 0.000420}};
-
-    std::vector<Eigen::Vector3d> ref_colors = {
-            {-0.000352, -0.000352, -0.000352},
-            {-0.000018, -0.000018, -0.000018},
-            {-0.000000, -0.000000, -0.000000},
-            {-24.580862, -24.580862, -24.580862},
-            {-0.000000, -0.000000, -0.000000},
-            {-0.001065, -0.001065, -0.001065},
-            {-0.000000, -0.000000, -0.000000},
-            {-0.020211, -0.020211, -0.020211},
-            {-0.000000, -0.000000, -0.000000},
-            {-0.000018, -0.000018, -0.000018},
-            {-4.959918, -4.959918, -4.959918},
-            {-93.301918, -93.301918, -93.301918},
-            {-0.000000, -0.000000, -0.000000},
-            {-0.000000, -0.000000, -0.000000},
-            {-0.000000, -0.000000, -0.000000},
-            {-0.094615, -0.094615, -0.094615},
-            {-0.000005, -0.000005, -0.000005},
-            {-0.000000, -0.000000, -0.000000},
-            {-0.000000, -0.000000, -0.000000},
-            {-0.000000, -0.000000, -0.000000},
-            {-1.254324, -1.254324, -1.254324},
-            {-4.550016, -4.550016, -4.550016},
-            {-0.000000, -0.000000, -0.000000},
-            {-80.370476, -80.370476, -80.370476},
-            {-22.216120, -22.216120, -22.216120}};
-
-    int color_num_of_channels = 1;
-    int color_bytes_per_channel = 4;
-
-    TEST_CreatePointCloudFromRGBDImage(color_num_of_channels,
-                                       color_bytes_per_channel, ref_points,
-                                       ref_colors);
+    std::shared_ptr<geometry::PointCloud> pc =
+            geometry::PointCloud::CreateFromRGBDImage(im_rgbd, intrinsic,
+                                                      extrinsic);
 }
 
 }  // namespace unit_test
